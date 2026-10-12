@@ -1,0 +1,13 @@
+{
+  "name": "pick-xi",
+  "version": "1.0.0",
+  "description": "Pick XI & Simulate — MEAN Stack Football Match Simulator",
+  "scripts": {
+    "server": "cd server && node server.js",
+    "client": "cd client && npx ng serve --proxy-config proxy.conf.json",
+    "seed": "cd server && node seeds/seed.js",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "keywords": ["football", "simulator", "mean-stack"],
+  "license": "MIT"
+}

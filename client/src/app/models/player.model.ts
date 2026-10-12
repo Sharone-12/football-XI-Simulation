@@ -1,0 +1,32 @@
+export interface Player {
+  _id: string;
+  player_id: number;
+  player: string;
+  slug: string;
+  team: string;
+  team_id: number;
+  league: string;
+  position: string;
+  detailed_position: string;
+  role: string;
+  appearances: number;
+  minutes: number;
+  goals: number;
+  assists: number;
+  xg: number;
+  xa: number;
+  goals_p90: number;
+  assists_p90: number;
+  xg_p90: number;
+  xa_p90: number;
+  shots_p90: number;
+  shots_on_target_p90: number;
+  passes_p90: number;
+  key_passes_p90: number;
+  tackles_won_p90: number;
+  interceptions_p90: number;
+  dribbles_p90: number;
+  aerials_won_p90: number;
+  clearances_p90: number;
+  recoveries_p90: number;
+}
