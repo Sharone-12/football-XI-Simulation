@@ -17,7 +17,6 @@ import { Player } from '../../models/player.model';
           {{ player.detailed_position || player.position }}
         </span>
       </div>
-
       @if (showStats) {
         <div class="player-stats">
           <div class="stat-item">
@@ -42,92 +41,42 @@ import { Player } from '../../models/player.model';
   `,
   styles: [`
     .player-card {
-      background: var(--bg-card);
+      background: #fff;
       border: 1px solid var(--border-color);
       border-radius: var(--radius-sm);
-      padding: 0.75rem;
+      padding: 0.6rem 0.75rem;
       transition: all var(--transition);
     }
-
-    .player-card.clickable {
-      cursor: pointer;
-    }
-
+    .player-card.clickable { cursor: pointer; }
     .player-card.clickable:hover {
-      border-color: var(--accent-green);
-      background: var(--bg-card-hover);
+      border-color: var(--accent);
+      background: rgba(196, 83, 42, 0.02);
     }
-
     .player-card.selected {
-      border-color: var(--accent-green);
-      background: rgba(34, 197, 94, 0.08);
+      border-color: var(--accent);
+      background: rgba(196, 83, 42, 0.06);
     }
-
-    .player-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 0.5rem;
-    }
-
-    .player-info {
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
-
-    .player-name {
-      font-weight: 600;
-      font-size: 0.9rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .player-team {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-
+    .player-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
+    .player-info { display: flex; flex-direction: column; min-width: 0; }
+    .player-name { font-weight: 600; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .player-team { font-size: 0.7rem; color: var(--text-muted); }
     .player-position {
-      font-size: 0.7rem;
-      font-weight: 600;
-      padding: 0.2rem 0.5rem;
-      border-radius: 4px;
-      white-space: nowrap;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
+      font-size: 0.65rem; font-weight: 600;
+      padding: 0.15rem 0.4rem; border-radius: 4px;
+      white-space: nowrap; text-transform: uppercase; letter-spacing: 0.03em;
     }
-
-    .pos-gk { background: rgba(234, 179, 8, 0.15); color: var(--yellow); }
-    .pos-def { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
-    .pos-mid { background: rgba(34, 197, 94, 0.15); color: var(--accent-green); }
-    .pos-fwd { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
-
+    .pos-gk { background: rgba(201, 147, 10, 0.1); color: var(--yellow); }
+    .pos-def { background: rgba(59, 95, 192, 0.1); color: var(--accent-blue); }
+    .pos-mid { background: rgba(45, 122, 79, 0.1); color: var(--accent-green); }
+    .pos-fwd { background: rgba(196, 83, 42, 0.1); color: var(--accent); }
     .player-stats {
-      display: flex;
-      gap: 0.75rem;
-      margin-top: 0.6rem;
-      padding-top: 0.6rem;
+      display: flex; gap: 0.6rem;
+      margin-top: 0.5rem; padding-top: 0.5rem;
       border-top: 1px solid var(--border-color);
     }
-
-    .stat-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .stat-num {
-      font-weight: 700;
-      font-size: 0.85rem;
-    }
-
-    .stat-lbl {
-      font-size: 0.65rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-    }
+    .stat-item { display: flex; flex-direction: column; align-items: center; }
+    .stat-num { font-weight: 700; font-size: 0.8rem; }
+    .stat-lbl { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; }
   `],
 })
 export class PlayerCardComponent {
@@ -146,8 +95,6 @@ export class PlayerCardComponent {
   }
 
   onSelect(): void {
-    if (this.clickable) {
-      this.selectPlayer.emit(this.player);
-    }
+    if (this.clickable) this.selectPlayer.emit(this.player);
   }
 }

@@ -13,312 +13,146 @@ import { AuthService } from '../../services/auth.service';
   imports: [CommonModule, RouterModule, FormationGridComponent, StatBarComponent],
   template: `
     @if (result) {
-      <div class="sim-page">
-        <!-- Scoreline -->
-        <div class="scoreline-card">
-          <div class="team-side home-side">
-            <span class="team-name">{{ result.result.homeTeamName }}</span>
+      <div class="page">
+        <div class="page-scroll">
+          <div class="scoreline-card">
+            <div class="team-side">
+              <span class="team-name home-label">{{ result.result.homeTeamName }}</span>
+            </div>
+            <div class="score-center">
+              <span class="score">{{ result.result.homeGoals }}</span>
+              <span class="score-dash">&ndash;</span>
+              <span class="score">{{ result.result.awayGoals }}</span>
+            </div>
+            <div class="team-side">
+              <span class="team-name away-label">{{ result.result.awayTeamName }}</span>
+            </div>
           </div>
-          <div class="score-center">
-            <span class="score">{{ result.result.homeGoals }}</span>
-            <span class="score-dash">-</span>
-            <span class="score">{{ result.result.awayGoals }}</span>
-          </div>
-          <div class="team-side away-side">
-            <span class="team-name">{{ result.result.awayTeamName }}</span>
-          </div>
-        </div>
 
-        <!-- Stats -->
-        <div class="stats-section card">
-          <h3 class="section-title">Match Statistics</h3>
-          <div class="stats-grid">
-            <app-stat-bar
-              [homeStat]="result.stats.possession.home"
-              [awayStat]="result.stats.possession.away"
-              label="Possession %"
-            />
-            <app-stat-bar
-              [homeStat]="result.stats.shots.home"
-              [awayStat]="result.stats.shots.away"
-              label="Shots"
-            />
-            <app-stat-bar
-              [homeStat]="result.stats.shotsOnTarget.home"
-              [awayStat]="result.stats.shotsOnTarget.away"
-              label="Shots on Target"
-            />
-            <app-stat-bar
-              [homeStat]="result.stats.passes.home"
-              [awayStat]="result.stats.passes.away"
-              label="Passes"
-            />
-            <app-stat-bar
-              [homeStat]="result.stats.fouls.home"
-              [awayStat]="result.stats.fouls.away"
-              label="Fouls"
-            />
-            <app-stat-bar
-              [homeStat]="result.stats.corners.home"
-              [awayStat]="result.stats.corners.away"
-              label="Corners"
-            />
-          </div>
-        </div>
-
-        <!-- Timeline -->
-        <div class="timeline-section card">
-          <h3 class="section-title">Match Timeline</h3>
-          <div class="timeline">
-            @for (event of result.timeline; track $index) {
-              <div class="timeline-event" [class]="'event-' + event.type">
-                <span class="event-minute">{{ event.minute }}'</span>
-                <div class="event-dot-line">
-                  <div class="event-dot" [class]="'dot-' + event.type"></div>
-                  <div class="event-line"></div>
-                </div>
-                <div class="event-detail">
-                  <span class="event-team">{{ event.team }}</span>
-                  <span class="event-icon">{{ getEventIcon(event.type) }}</span>
-                  <span class="event-player">{{ event.player }}</span>
-                  <span class="event-desc">{{ event.description }}</span>
+          <div class="content-grid">
+            <div class="col">
+              <div class="section-card">
+                <h3 class="section-title">Match Statistics</h3>
+                <div class="stats-grid">
+                  <app-stat-bar [homeStat]="result.stats.possession.home" [awayStat]="result.stats.possession.away" label="Possession %" />
+                  <app-stat-bar [homeStat]="result.stats.shots.home" [awayStat]="result.stats.shots.away" label="Shots" />
+                  <app-stat-bar [homeStat]="result.stats.shotsOnTarget.home" [awayStat]="result.stats.shotsOnTarget.away" label="On Target" />
+                  <app-stat-bar [homeStat]="result.stats.passes.home" [awayStat]="result.stats.passes.away" label="Passes" />
+                  <app-stat-bar [homeStat]="result.stats.fouls.home" [awayStat]="result.stats.fouls.away" label="Fouls" />
+                  <app-stat-bar [homeStat]="result.stats.corners.home" [awayStat]="result.stats.corners.away" label="Corners" />
                 </div>
               </div>
-            }
-            @if (result.timeline.length === 0) {
-              <p class="empty">No events recorded</p>
-            }
-          </div>
-        </div>
 
-        <!-- Lineups -->
-        <div class="lineups-section">
-          <div class="lineup-half">
-            <h3 class="lineup-title home-label">{{ result.homeTeam.name }} ({{ result.homeTeam.formation }})</h3>
-            <app-formation-grid
-              [formation]="result.homeTeam.formation"
-              [players]="result.homeTeam.players"
-            />
-          </div>
-          <div class="lineup-half">
-            <h3 class="lineup-title away-label">{{ result.awayTeam.name }} ({{ result.awayTeam.formation }})</h3>
-            <app-formation-grid
-              [formation]="result.awayTeam.formation"
-              [players]="result.awayTeam.players"
-            />
-          </div>
-        </div>
+              <div class="section-card">
+                <h3 class="section-title">Lineups</h3>
+                <div class="lineups-row">
+                  <div class="lineup-half">
+                    <span class="lineup-label home-label">{{ result.homeTeam.name }} ({{ result.homeTeam.formation }})</span>
+                    <app-formation-grid [formation]="result.homeTeam.formation" [players]="result.homeTeam.players" />
+                  </div>
+                  <div class="lineup-half">
+                    <span class="lineup-label away-label">{{ result.awayTeam.name }} ({{ result.awayTeam.formation }})</span>
+                    <app-formation-grid [formation]="result.awayTeam.formation" [players]="result.awayTeam.players" />
+                  </div>
+                </div>
+              </div>
+            </div>
 
-        <!-- Actions -->
-        <div class="actions">
-          @if (authService.isLoggedIn() && !saved) {
-            <button class="btn btn-secondary" (click)="saveMatch()" [disabled]="saving">
-              {{ saving ? 'Saving...' : 'Save Match' }}
-            </button>
-          }
-          @if (saved) {
-            <span class="saved-msg">Match saved!</span>
-          }
-          <a routerLink="/" class="btn btn-outline">New Match</a>
+            <div class="col">
+              <div class="section-card timeline-card">
+                <h3 class="section-title">Match Timeline</h3>
+                <div class="timeline">
+                  @for (event of result.timeline; track $index) {
+                    <div class="tl-event">
+                      <span class="tl-min">{{ event.minute }}'</span>
+                      <div class="tl-dot" [class]="'dot-' + event.type"></div>
+                      <div class="tl-detail">
+                        <span class="tl-team">{{ event.team }}</span>
+                        <span class="tl-icon">{{ getEventIcon(event.type) }}</span>
+                        <span class="tl-player">{{ event.player }}</span>
+                        @if (event.description) { <span class="tl-desc">{{ event.description }}</span> }
+                      </div>
+                    </div>
+                  }
+                  @if (result.timeline.length === 0) { <p class="empty">No events recorded</p> }
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="actions">
+            @if (authService.isLoggedIn() && !saved) {
+              <button class="btn btn-secondary" (click)="saveMatch()" [disabled]="saving">
+                {{ saving ? 'Saving...' : 'Save Match' }}
+              </button>
+            }
+            @if (saved) { <span class="saved-msg">Match saved!</span> }
+            <a routerLink="/" class="btn btn-outline">New Match</a>
+          </div>
         </div>
       </div>
     } @else {
-      <div class="loading-container" style="padding-top:6rem;">
+      <div class="page empty-page">
         <p>No simulation data. Start a new match.</p>
         <a routerLink="/" class="btn btn-primary" style="margin-top:1rem;">Go Home</a>
       </div>
     }
   `,
   styles: [`
-    .sim-page {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 2rem 1rem;
-    }
-
+    .page { height: 100%; display: flex; flex-direction: column; max-width: 1200px; margin: 0 auto; padding: 0.75rem 1rem; }
+    .page-scroll { flex: 1; overflow-y: auto; min-height: 0; display: flex; flex-direction: column; gap: 0.75rem; }
+    .empty-page { justify-content: center; align-items: center; text-align: center; color: var(--text-muted); }
     .scoreline-card {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 2rem;
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-lg);
-      padding: 2.5rem 2rem;
-      margin-bottom: 2rem;
+      display: flex; align-items: center; justify-content: center; gap: 1.5rem;
+      background: #fff; border: 1px solid var(--border-color);
+      border-radius: var(--radius-md); padding: 1.5rem; flex-shrink: 0;
+      box-shadow: var(--shadow-sm);
     }
-
-    .team-side {
-      flex: 1;
-      text-align: center;
+    .team-side { flex: 1; text-align: center; }
+    .team-name { font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; }
+    .home-label { color: var(--accent); }
+    .away-label { color: var(--accent-blue); }
+    .score-center { display: flex; align-items: center; gap: 0.5rem; }
+    .score { font-family: var(--font-heading); font-size: 2.8rem; font-weight: 800; line-height: 1; }
+    .score-dash { font-size: 1.5rem; color: var(--text-muted); }
+    .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    .col { display: flex; flex-direction: column; gap: 0.75rem; }
+    .section-card {
+      background: #fff; border: 1px solid var(--border-color);
+      border-radius: var(--radius-md); padding: 1rem;
+      box-shadow: var(--shadow-sm);
     }
-
-    .team-name {
-      font-size: 1.3rem;
-      font-weight: 700;
-    }
-
-    .score-center {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .score {
-      font-size: 3.5rem;
-      font-weight: 800;
-      line-height: 1;
-    }
-
-    .score-dash {
-      font-size: 2rem;
-      color: var(--text-muted);
-      font-weight: 300;
-    }
-
     .section-title {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 1.5rem;
-      text-align: center;
+      font-family: var(--font-heading); font-size: 0.75rem; font-weight: 700;
+      color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;
+      margin-bottom: 0.75rem; text-align: center;
     }
-
-    .stats-section {
-      margin-bottom: 2rem;
-      padding-top: 2rem;
-    }
-
-    .stats-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    .timeline-section {
-      margin-bottom: 2rem;
-    }
-
-    .timeline {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      max-height: 400px;
-      overflow-y: auto;
-    }
-
-    .timeline-event {
-      display: flex;
-      align-items: flex-start;
-      gap: 0.75rem;
-      padding: 0.5rem 0;
-    }
-
-    .event-minute {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      min-width: 36px;
-      text-align: right;
-    }
-
-    .event-dot-line {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding-top: 4px;
-    }
-
-    .event-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .dot-goal { background: var(--accent-green); box-shadow: 0 0 8px rgba(34,197,94,0.4); }
-    .dot-card { background: var(--yellow); }
+    .stats-grid { display: flex; flex-direction: column; gap: 1rem; }
+    .lineups-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    .lineup-half { display: flex; flex-direction: column; gap: 0.3rem; }
+    .lineup-label { font-family: var(--font-heading); font-size: 0.75rem; font-weight: 700; text-align: center; }
+    .timeline-card { flex: 1; display: flex; flex-direction: column; }
+    .timeline { flex: 1; display: flex; flex-direction: column; gap: 0; overflow-y: auto; max-height: 400px; }
+    .tl-event { display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.35rem 0; }
+    .tl-min { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); min-width: 28px; text-align: right; }
+    .tl-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+    .dot-goal { background: var(--accent); box-shadow: 0 0 6px rgba(196,83,42,0.3); }
+    .dot-card { background: #eab308; }
     .dot-chance { background: var(--accent-blue); }
     .dot-save { background: #a855f7; }
     .dot-substitution { background: var(--text-muted); }
-
-    .event-line {
-      width: 2px;
-      flex: 1;
-      min-height: 16px;
-      background: var(--border-color);
-    }
-
-    .event-detail {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.35rem;
-      font-size: 0.85rem;
-      line-height: 1.5;
-    }
-
-    .event-team {
-      font-weight: 600;
-      color: var(--accent-green);
-    }
-
-    .event-icon {
-      font-weight: 700;
-    }
-
-    .event-player {
-      font-weight: 600;
-    }
-
-    .event-desc {
-      color: var(--text-secondary);
-    }
-
-    .lineups-section {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
-
-    .lineup-title {
-      font-size: 1rem;
-      font-weight: 700;
-      text-align: center;
-      margin-bottom: 0.75rem;
-    }
-
-    .home-label { color: var(--accent-green); }
-    .away-label { color: var(--accent-blue); }
-
-    .actions {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      align-items: center;
-    }
-
-    .saved-msg {
-      color: var(--accent-green);
-      font-weight: 600;
-    }
-
-    .empty {
-      text-align: center;
-      color: var(--text-muted);
-      padding: 2rem;
-    }
-
-    @media (max-width: 640px) {
-      .scoreline-card {
-        flex-direction: column;
-        gap: 1rem;
-        padding: 1.5rem;
-      }
-      .score { font-size: 2.5rem; }
-      .lineups-section { grid-template-columns: 1fr; }
+    .tl-detail { display: flex; flex-wrap: wrap; gap: 0.25rem; font-size: 0.8rem; }
+    .tl-team { font-weight: 600; color: var(--accent); }
+    .tl-icon { font-weight: 700; font-size: 0.7rem; }
+    .tl-player { font-weight: 600; }
+    .tl-desc { color: var(--text-secondary); }
+    .actions { display: flex; justify-content: center; gap: 0.75rem; align-items: center; padding: 0.5rem 0; flex-shrink: 0; }
+    .saved-msg { color: var(--accent-green); font-weight: 600; font-size: 0.85rem; }
+    .empty { text-align: center; color: var(--text-muted); padding: 1.5rem; }
+    @media (max-width: 768px) {
+      .content-grid { grid-template-columns: 1fr; }
+      .scoreline-card { flex-direction: column; gap: 0.75rem; padding: 1rem; }
+      .score { font-size: 2rem; }
     }
   `],
 })
@@ -334,20 +168,18 @@ export class SimulationComponent implements OnInit {
   ) {
     const nav = this.router.getCurrentNavigation();
     const state = nav?.extras?.state as any;
-    if (state?.result) {
-      this.result = state.result;
-    }
+    if (state?.result) this.result = state.result;
   }
 
   ngOnInit(): void {}
 
   getEventIcon(type: string): string {
     switch (type) {
-      case 'goal': return '[ GOAL ]';
-      case 'card': return '[ CARD ]';
-      case 'chance': return '[ CHANCE ]';
-      case 'save': return '[ SAVE ]';
-      case 'substitution': return '[ SUB ]';
+      case 'goal': return 'GOAL';
+      case 'card': return 'CARD';
+      case 'chance': return 'CHANCE';
+      case 'save': return 'SAVE';
+      case 'substitution': return 'SUB';
       default: return '';
     }
   }
@@ -356,13 +188,8 @@ export class SimulationComponent implements OnInit {
     if (!this.result) return;
     this.saving = true;
     this.historyService.saveSimulation(this.result).subscribe({
-      next: () => {
-        this.saving = false;
-        this.saved = true;
-      },
-      error: () => {
-        this.saving = false;
-      },
+      next: () => { this.saving = false; this.saved = true; },
+      error: () => { this.saving = false; },
     });
   }
 }
