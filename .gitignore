@@ -5,3 +5,4 @@ dist/
 .angular/
 .DS_Store
 coverage/
+.vercel

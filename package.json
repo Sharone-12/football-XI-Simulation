@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Pick XI & Simulate — MEAN Stack Football Match Simulator",
   "scripts": {
+    "build": "cd client && npm install && npm run build",
     "server": "cd server && node server.js",
     "client": "cd client && npx ng serve --proxy-config proxy.conf.json",
     "seed": "cd server && node seeds/seed.js",
