@@ -128,7 +128,7 @@ interface PositionSlot {
     .position-slot.active .slot-dot {
       background: var(--accent);
       border-color: #fff;
-      box-shadow: 0 0 12px rgba(196, 83, 42, 0.5);
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.5);
       animation: pulse-slot 1.2s ease infinite;
     }
 

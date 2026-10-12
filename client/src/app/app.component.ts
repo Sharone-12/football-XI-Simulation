@@ -39,12 +39,11 @@ import { AuthService } from './services/auth.service';
   `,
   styles: [`
     .navbar {
-      background: #fff;
+      background: var(--bg-secondary);
       border-bottom: 1px solid var(--border-color);
       height: var(--nav-height);
       position: relative;
       z-index: 100;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
     }
 
     .nav-container {
@@ -71,7 +70,7 @@ import { AuthService } from './services/auth.service';
       width: 30px;
       height: 30px;
       background: var(--accent);
-      color: #fff;
+      color: #000;
       border-radius: 8px;
       display: flex;
       align-items: center;
@@ -93,9 +92,10 @@ import { AuthService } from './services/auth.service';
     .nav-pills {
       display: flex;
       gap: 0.25rem;
-      background: var(--bg-secondary);
+      background: var(--bg-input);
       padding: 0.2rem;
       border-radius: var(--radius-pill);
+      border: 1px solid var(--border-color);
     }
 
     .pill {
@@ -111,13 +111,13 @@ import { AuthService } from './services/auth.service';
 
     .pill:hover {
       color: var(--text-primary);
-      background: rgba(0,0,0,0.04);
+      background: rgba(255,255,255,0.05);
     }
 
     .pill.active {
-      color: #fff;
+      color: #000;
       background: var(--accent);
-      box-shadow: var(--shadow-sm);
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.3);
     }
 
     .nav-auth {

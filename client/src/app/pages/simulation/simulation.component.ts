@@ -104,9 +104,8 @@ import { AuthService } from '../../services/auth.service';
     .empty-page { justify-content: center; align-items: center; text-align: center; color: var(--text-muted); }
     .scoreline-card {
       display: flex; align-items: center; justify-content: center; gap: 1.5rem;
-      background: #fff; border: 1px solid var(--border-color);
+      background: var(--bg-card); border: 1px solid var(--border-color);
       border-radius: var(--radius-md); padding: 1.5rem; flex-shrink: 0;
-      box-shadow: var(--shadow-sm);
     }
     .team-side { flex: 1; text-align: center; }
     .team-name { font-family: var(--font-heading); font-size: 1.1rem; font-weight: 700; }
@@ -118,9 +117,8 @@ import { AuthService } from '../../services/auth.service';
     .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
     .col { display: flex; flex-direction: column; gap: 0.75rem; }
     .section-card {
-      background: #fff; border: 1px solid var(--border-color);
+      background: var(--bg-card); border: 1px solid var(--border-color);
       border-radius: var(--radius-md); padding: 1rem;
-      box-shadow: var(--shadow-sm);
     }
     .section-title {
       font-family: var(--font-heading); font-size: 0.75rem; font-weight: 700;
@@ -136,7 +134,7 @@ import { AuthService } from '../../services/auth.service';
     .tl-event { display: flex; align-items: flex-start; gap: 0.5rem; padding: 0.35rem 0; }
     .tl-min { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); min-width: 28px; text-align: right; }
     .tl-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
-    .dot-goal { background: var(--accent); box-shadow: 0 0 6px rgba(196,83,42,0.3); }
+    .dot-goal { background: var(--accent); box-shadow: 0 0 6px rgba(34,197,94,0.4); }
     .dot-card { background: #eab308; }
     .dot-chance { background: var(--accent-blue); }
     .dot-save { background: #a855f7; }

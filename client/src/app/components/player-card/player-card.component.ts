@@ -41,7 +41,7 @@ import { Player } from '../../models/player.model';
   `,
   styles: [`
     .player-card {
-      background: #fff;
+      background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-sm);
       padding: 0.6rem 0.75rem;
@@ -50,11 +50,11 @@ import { Player } from '../../models/player.model';
     .player-card.clickable { cursor: pointer; }
     .player-card.clickable:hover {
       border-color: var(--accent);
-      background: rgba(196, 83, 42, 0.02);
+      background: var(--bg-card-hover);
     }
     .player-card.selected {
       border-color: var(--accent);
-      background: rgba(196, 83, 42, 0.06);
+      background: var(--accent-dim);
     }
     .player-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
     .player-info { display: flex; flex-direction: column; min-width: 0; }
@@ -67,8 +67,8 @@ import { Player } from '../../models/player.model';
     }
     .pos-gk { background: rgba(201, 147, 10, 0.1); color: var(--yellow); }
     .pos-def { background: rgba(59, 95, 192, 0.1); color: var(--accent-blue); }
-    .pos-mid { background: rgba(45, 122, 79, 0.1); color: var(--accent-green); }
-    .pos-fwd { background: rgba(196, 83, 42, 0.1); color: var(--accent); }
+    .pos-mid { background: var(--accent-dim); color: var(--accent); }
+    .pos-fwd { background: rgba(249, 115, 22, 0.15); color: var(--accent-orange); }
     .player-stats {
       display: flex; gap: 0.6rem;
       margin-top: 0.5rem; padding-top: 0.5rem;

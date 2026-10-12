@@ -53,9 +53,8 @@ import { AuthService } from '../../services/auth.service';
     .page { height: 100%; display: flex; justify-content: center; align-items: center; padding: 1rem; }
     .auth-card {
       width: 100%; max-width: 400px;
-      background: #fff; border: 1px solid var(--border-color);
+      background: var(--bg-card); border: 1px solid var(--border-color);
       border-radius: var(--radius-md); padding: 2rem;
-      box-shadow: var(--shadow-md);
     }
     .auth-title { font-family: var(--font-heading); font-size: 1.4rem; font-weight: 700; text-align: center; }
     .auth-sub { text-align: center; color: var(--text-secondary); margin-top: 0.4rem; margin-bottom: 1.5rem; font-size: 0.85rem; }
@@ -64,7 +63,7 @@ import { AuthService } from '../../services/auth.service';
     .form-group label { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); }
     .form-group input { width: 100%; }
     .error-msg {
-      background: rgba(196,56,42,0.08); color: var(--danger);
+      background: rgba(239,68,68,0.1); color: var(--danger);
       padding: 0.5rem 0.75rem; border-radius: var(--radius-sm); font-size: 0.8rem;
     }
     .btn-full { width: 100%; padding: 0.7rem; }

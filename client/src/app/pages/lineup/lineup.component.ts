@@ -82,12 +82,11 @@ import { PlayerCardComponent } from '../../components/player-card/player-card.co
     .tabs { display: flex; gap: 0.4rem; }
     .tab {
       padding: 0.45rem 1.25rem; border-radius: var(--radius-pill);
-      background: #fff; color: var(--text-secondary);
+      background: var(--bg-card); color: var(--text-secondary);
       border: 1px solid var(--border-color);
       font-family: var(--font-heading); font-weight: 600; font-size: 0.8rem;
-      box-shadow: var(--shadow-sm);
     }
-    .tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .tab.active { background: var(--accent); color: #000; border-color: var(--accent); }
     .lineup-count { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
     .lineup-layout { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; min-height: 0; }
     .pitch-section { display: flex; flex-direction: column; gap: 0.5rem; min-height: 0; }

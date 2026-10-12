@@ -80,7 +80,7 @@ import { RouterModule } from '@angular/router';
       text-transform: uppercase;
       letter-spacing: 0.1em;
       color: var(--accent);
-      background: rgba(196, 83, 42, 0.08);
+      background: var(--accent-dim);
       padding: 0.3rem 0.8rem;
       border-radius: var(--radius-pill);
       margin-bottom: 0.75rem;
@@ -116,17 +116,16 @@ import { RouterModule } from '@angular/router';
       padding: 1rem 1.25rem;
       border-radius: var(--radius-md);
       border: 1px solid var(--border-color);
-      background: #fff;
+      background: var(--bg-card);
       color: var(--text-primary);
       transition: all 0.2s ease;
-      box-shadow: var(--shadow-sm);
     }
 
     .mode-btn:hover {
       transform: translateX(4px);
       color: var(--text-primary);
-      box-shadow: var(--shadow-md);
-      border-color: var(--border-light);
+      border-color: var(--accent);
+      box-shadow: 0 0 20px rgba(34, 197, 94, 0.15);
     }
 
     .mode-btn-icon {
@@ -140,12 +139,12 @@ import { RouterModule } from '@angular/router';
     }
 
     .club-icon {
-      background: rgba(45, 122, 79, 0.08);
-      color: var(--accent-green);
+      background: var(--accent-dim);
+      color: var(--accent);
     }
 
     .dream-icon {
-      background: rgba(59, 95, 192, 0.08);
+      background: var(--accent-blue-dim);
       color: var(--accent-blue);
     }
 
