@@ -7,208 +7,194 @@ import { RouterModule } from '@angular/router';
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <div class="home-page">
-      <div class="home-left">
-        <div class="hero-text">
-          <span class="hero-tag">Football Match Simulator</span>
-          <h1 class="hero-title">Pick Your XI.<br/>Simulate The Match.</h1>
-          <p class="hero-sub">Build your dream lineup from Europe's top leagues. Set formations, pick players, and watch the simulation unfold.</p>
-        </div>
+    <div class="poster">
+      <div class="teal-accent"></div>
 
-        <div class="mode-buttons">
-          <a routerLink="/teams" class="mode-btn">
-            <div class="mode-btn-icon club-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="2" y="4" width="20" height="16" rx="2"/>
-                <line x1="12" y1="4" x2="12" y2="20" opacity="0.4"/>
-                <circle cx="7" cy="12" r="3" stroke-width="1.5"/>
-                <circle cx="17" cy="12" r="3" stroke-width="1.5"/>
-              </svg>
-            </div>
-            <div class="mode-btn-text">
-              <span class="mode-btn-title">Club vs Club</span>
-              <span class="mode-btn-desc">Pick two real teams and build your starting XIs</span>
-            </div>
-            <span class="mode-arrow">&rarr;</span>
-          </a>
+      <div class="title-layer">
+        <div class="subtitle">FOOTBALL MATCH SIMULATOR</div>
+        <span class="title-word">TOUCH</span>
+        <span class="title-word">LINE</span>
+      </div>
 
-          <a routerLink="/dream-xi" class="mode-btn">
-            <div class="mode-btn-icon dream-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 2L14.5 8.5H21L16 12.5L17.5 19L12 15L6.5 19L8 12.5L3 8.5H9.5L12 2Z"/>
-              </svg>
-            </div>
-            <div class="mode-btn-text">
-              <span class="mode-btn-title">Dream XI</span>
-              <span class="mode-btn-desc">Mix stars from any league into fantasy XIs</span>
-            </div>
-            <span class="mode-arrow">&rarr;</span>
-          </a>
+      <div class="player-layer">
+        <img src="assets/hero-player.png" alt="" class="player-img" />
+      </div>
+
+      <div class="ui-layer">
+        <span class="year">2026</span>
+        <div class="bottom-block">
+          <a routerLink="/teams" class="cta">PLAY NOW</a>
         </div>
       </div>
 
-      <div class="home-right">
-        <div class="hero-widget">
-          <img src="assets/hero.png" alt="Football pixel art" class="hero-img" />
-        </div>
+      <div class="edge left-edge">
+        <span class="edge-label">SEASON 26/27</span>
+      </div>
+      <div class="edge left-edge bottom">
+        <span class="edge-label">PL &middot; LIGA &middot; SERIE A</span>
+      </div>
+      <div class="edge right-edge">
+        <span class="edge-label">66 TEAMS</span>
+      </div>
+      <div class="edge right-edge bottom">
+        <span class="edge-label">1,081 PLAYERS</span>
       </div>
     </div>
   `,
   styles: [`
-    .home-page {
+    .poster {
       height: 100%;
-      display: flex;
-      align-items: center;
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 0 2rem;
-      gap: 4rem;
-    }
-
-    .home-left {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 2.5rem;
-    }
-
-    .hero-tag {
-      display: inline-block;
-      font-family: var(--font-heading);
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--accent);
-      background: rgba(196, 83, 42, 0.08);
-      padding: 0.3rem 0.8rem;
-      border-radius: var(--radius-pill);
-      margin-bottom: 0.75rem;
-    }
-
-    .hero-title {
-      font-family: var(--font-heading);
-      font-size: 3rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      line-height: 1.1;
-      color: var(--text-primary);
-    }
-
-    .hero-sub {
-      margin-top: 1rem;
-      font-size: 1rem;
-      color: var(--text-secondary);
-      max-width: 420px;
-      line-height: 1.7;
-    }
-
-    .mode-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-    }
-
-    .mode-btn {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 1rem 1.25rem;
-      border-radius: var(--radius-md);
-      border: 1px solid var(--border-color);
-      background: #fff;
-      color: var(--text-primary);
-      transition: all 0.2s ease;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .mode-btn:hover {
-      transform: translateX(4px);
-      color: var(--text-primary);
-      box-shadow: var(--shadow-md);
-      border-color: var(--border-light);
-    }
-
-    .mode-btn-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .club-icon {
-      background: rgba(45, 122, 79, 0.08);
-      color: var(--accent-green);
-    }
-
-    .dream-icon {
-      background: rgba(59, 95, 192, 0.08);
-      color: var(--accent-blue);
-    }
-
-    .mode-btn-text {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 0.1rem;
-    }
-
-    .mode-btn-title {
-      font-family: var(--font-heading);
-      font-weight: 600;
-      font-size: 0.95rem;
-    }
-
-    .mode-btn-desc {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-    }
-
-    .mode-arrow {
-      font-size: 1.1rem;
-      color: var(--text-muted);
-      transition: all var(--transition);
-    }
-
-    .mode-btn:hover .mode-arrow {
-      color: var(--accent);
-      transform: translateX(3px);
-    }
-
-    .home-right {
-      flex: 0 0 auto;
-      display: flex;
-      align-items: center;
-    }
-
-    .hero-widget {
-      width: 360px;
-      height: 440px;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border-color);
+      background: #b5e61d;
+      position: relative;
       overflow: hidden;
-      background: var(--bg-secondary);
-      box-shadow: var(--shadow-lg);
     }
 
-    .hero-img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+    /* Clean teal accent — hard curved edge, not a blob */
+    .teal-accent {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 35%;
+      height: 40%;
+      background: #4dcba6;
+      border-radius: 50% 0 0 0;
+      opacity: 0.55;
+      z-index: 0;
     }
 
-    @media (max-width: 900px) {
-      .home-page {
-        flex-direction: column;
-        justify-content: center;
-        padding: 1.5rem;
-        gap: 2rem;
-      }
-      .home-right { display: none; }
-      .hero-title { font-size: 2.2rem; }
+    /* Title sits BEHIND the player */
+    .title-layer {
+      position: absolute;
+      z-index: 1;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      line-height: 0.85;
+      pointer-events: none;
+    }
+
+    .title-word {
+      display: block;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(7rem, 20vw, 18rem);
+      color: #fff;
+      letter-spacing: 0.03em;
+    }
+
+    /* Player renders ON TOP of the title */
+    .player-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      pointer-events: none;
+      padding-left: 5%;
+    }
+
+    .player-img {
+      height: 88%;
+      width: auto;
+      object-fit: contain;
+    }
+
+    /* Subtitle, year, CTA — on top of everything */
+    .ui-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .subtitle {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(0.9rem, 1.8vw, 1.2rem);
+      color: #fff;
+      letter-spacing: 0.2em;
+      white-space: nowrap;
+      margin-bottom: 0.3rem;
+    }
+
+    .bottom-block {
+      position: absolute;
+      bottom: 7vh;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .year {
+      position: absolute;
+      right: 12%;
+      bottom: 28%;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2rem, 4.5vw, 3.5rem);
+      color: #fff;
+      letter-spacing: 0.12em;
+    }
+
+    .cta {
+      pointer-events: auto;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(1rem, 1.6vw, 1.2rem);
+      color: #fff;
+      letter-spacing: 0.15em;
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      border-radius: 50px;
+      padding: 0.6rem 3rem;
+      transition: all 0.2s ease;
+    }
+
+    .cta:hover {
+      background: #fff;
+      color: #b5e61d;
+      border-color: #fff;
+    }
+
+    /* Vertical edge labels */
+    .edge {
+      position: absolute;
+      z-index: 4;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      color: rgba(255, 255, 255, 0.7);
+      writing-mode: vertical-lr;
+    }
+
+    .left-edge {
+      left: 1.2rem;
+      top: 5.5rem;
+    }
+
+    .left-edge.bottom {
+      top: auto;
+      bottom: 2rem;
+      transform: rotate(180deg);
+    }
+
+    .right-edge {
+      right: 1.2rem;
+      top: 5.5rem;
+    }
+
+    .right-edge.bottom {
+      top: auto;
+      bottom: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .title-word { font-size: 5rem; }
+      .edge { display: none; }
+      .player-img { height: 75%; }
+      .ui-layer { padding: 20vh 0 6vh; }
     }
   `],
 })

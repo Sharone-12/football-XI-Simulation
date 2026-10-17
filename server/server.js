@@ -17,6 +17,7 @@ app.use('/api/players', require('./routes/players'));
 app.use('/api/simulate', require('./routes/simulate'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/history', require('./routes/history'));
+app.use('/api/matches', require('./routes/matches'));
 
 // Health check
 app.get('/api/health', (req, res) => {

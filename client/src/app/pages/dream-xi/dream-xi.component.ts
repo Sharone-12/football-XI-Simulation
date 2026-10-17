@@ -133,10 +133,10 @@ import { PlayerCardComponent } from '../../components/player-card/player-card.co
     .pitch-wrap { flex: 1; min-height: 0; overflow: hidden; }
     .name-input { width: 100%; text-align: center; font-size: 0.8rem; padding: 0.35rem; }
     .pool-section {
-      background: #fff; border: 1px solid var(--border-color);
+      background: var(--bg-card); border: 1px solid var(--border-color);
       border-radius: var(--radius-md); padding: 0.75rem;
       display: flex; flex-direction: column; gap: 0.5rem; min-height: 0;
-      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(12px);
     }
     .pool-filters { display: flex; flex-direction: column; gap: 0.35rem; }
     .pool-filters input, .pool-filters select { font-size: 0.8rem; padding: 0.35rem 0.5rem; }
@@ -149,8 +149,8 @@ import { PlayerCardComponent } from '../../components/player-card/player-card.co
       border: 1px solid var(--border-color);
       font-family: var(--font-heading); font-weight: 600; font-size: 0.75rem;
     }
-    .toggle-btn.active { background: rgba(196,83,42,0.08); color: var(--accent); border-color: var(--accent); }
-    .toggle-btn.away.active { background: rgba(59,95,192,0.08); color: var(--accent-blue); border-color: var(--accent-blue); }
+    .toggle-btn.active { background: rgba(106,191,64,0.12); color: var(--accent); border-color: var(--accent); }
+    .toggle-btn.away.active { background: rgba(96,165,250,0.12); color: var(--accent-blue); border-color: var(--accent-blue); }
     .player-pool-list { flex: 1; display: flex; flex-direction: column; gap: 0.3rem; overflow-y: auto; min-height: 0; }
     .pagination { display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
     .page-info { font-size: 0.75rem; color: var(--text-muted); }

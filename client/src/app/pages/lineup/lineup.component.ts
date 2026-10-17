@@ -82,7 +82,7 @@ import { PlayerCardComponent } from '../../components/player-card/player-card.co
     .tabs { display: flex; gap: 0.4rem; }
     .tab {
       padding: 0.45rem 1.25rem; border-radius: var(--radius-pill);
-      background: #fff; color: var(--text-secondary);
+      background: var(--bg-card); color: var(--text-secondary);
       border: 1px solid var(--border-color);
       font-family: var(--font-heading); font-weight: 600; font-size: 0.8rem;
       box-shadow: var(--shadow-sm);
@@ -172,7 +172,9 @@ export class LineupComponent implements OnInit {
   }
 
   get canSimulate(): boolean {
-    return this.homePlayers.every(p => p !== null) && this.awayPlayers.every(p => p !== null);
+    const homeOutfield = this.homePlayers.slice(1).filter(p => p !== null).length;
+    const awayOutfield = this.awayPlayers.slice(1).filter(p => p !== null).length;
+    return homeOutfield >= 10 && awayOutfield >= 10;
   }
 
   setFormation(formation: string): void {

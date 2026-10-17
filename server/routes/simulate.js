@@ -14,8 +14,8 @@ router.post('/', async (req, res) => {
     if (!homeLineup.formation || !awayLineup.formation) {
       return res.status(400).json({ error: 'Formation is required for both lineups' });
     }
-    if (!homeLineup.players || !awayLineup.players || homeLineup.players.length !== 11 || awayLineup.players.length !== 11) {
-      return res.status(400).json({ error: 'Each lineup must have exactly 11 player IDs' });
+    if (!homeLineup.players || !awayLineup.players || homeLineup.players.length < 10 || awayLineup.players.length < 10) {
+      return res.status(400).json({ error: 'Each lineup must have at least 10 players' });
     }
 
     // Fetch full player data
@@ -30,8 +30,8 @@ router.post('/', async (req, res) => {
     const homePlayers = homeLineup.players.map((id) => playerMap[id]).filter(Boolean);
     const awayPlayers = awayLineup.players.map((id) => playerMap[id]).filter(Boolean);
 
-    if (homePlayers.length !== 11 || awayPlayers.length !== 11) {
-      return res.status(400).json({ error: 'Could not find all players. Check player IDs.' });
+    if (homePlayers.length < 10 || awayPlayers.length < 10) {
+      return res.status(400).json({ error: 'Could not find enough players. Check player IDs.' });
     }
 
     // Determine team names from the first player in each lineup

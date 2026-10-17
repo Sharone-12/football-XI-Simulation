@@ -1,25 +1,25 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { AuthService } from './services/auth.service';
+import { filter, map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
-    <nav class="navbar">
+    <nav class="navbar" [class.navbar-transparent]="isHome$ | async">
       <div class="nav-container">
         <a routerLink="/" class="nav-logo">
-          <div class="logo-badge">XI</div>
-          <span class="logo-text">PICK XI</span>
+          <span class="logo-touch">TOUCH</span><span class="logo-line">LINE</span>
         </a>
 
-        <div class="nav-pills">
-          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="pill">Home</a>
-          <a routerLink="/teams" routerLinkActive="active" class="pill">Teams</a>
-          <a routerLink="/dream-xi" routerLinkActive="active" class="pill">Dream XI</a>
-          <a routerLink="/history" routerLinkActive="active" class="pill">History</a>
+        <div class="nav-links">
+          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a>
+          <a routerLink="/teams" routerLinkActive="active">Teams</a>
+          <a routerLink="/dream-xi" routerLinkActive="active">Dream XI</a>
+          <a routerLink="/history" routerLinkActive="active">History</a>
         </div>
 
         <div class="nav-auth">
@@ -33,91 +33,78 @@ import { AuthService } from './services/auth.service';
       </div>
     </nav>
 
-    <main class="main-content">
+    <main class="main-content" [class.main-full]="isHome$ | async">
       <router-outlet />
     </main>
   `,
   styles: [`
     .navbar {
-      background: #fff;
-      border-bottom: 1px solid var(--border-color);
+      background: var(--bg-primary);
       height: var(--nav-height);
-      position: relative;
+      position: sticky;
+      top: 0;
       z-index: 100;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+
+    .navbar-transparent {
+      background: transparent;
+      position: absolute;
+      left: 0;
+      right: 0;
     }
 
     .nav-container {
-      max-width: 1280px;
+      max-width: 1400px;
       margin: 0 auto;
-      padding: 0 1.25rem;
+      padding: 0 2rem;
       height: 100%;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 1.5rem;
+      gap: 2rem;
     }
 
     .nav-logo {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: var(--text-primary);
-    }
-
-    .nav-logo:hover { color: var(--text-primary); }
-
-    .logo-badge {
-      width: 30px;
-      height: 30px;
-      background: var(--accent);
+      font-family: 'Bebas Neue', var(--font-heading), sans-serif;
+      font-size: 1.8rem;
+      letter-spacing: 0.1em;
       color: #fff;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-heading);
-      font-weight: 800;
-      font-size: 0.7rem;
-      letter-spacing: 0.05em;
     }
 
-    .logo-text {
-      font-family: var(--font-heading);
-      font-weight: 700;
-      font-size: 1.05rem;
-      letter-spacing: 0.06em;
-      color: var(--text-primary);
+    .nav-logo:hover { color: #fff; }
+
+    .logo-touch {
+      font-weight: 400;
     }
 
-    .nav-pills {
+    .logo-line {
+      font-weight: 400;
+    }
+
+    .nav-links {
       display: flex;
       gap: 0.25rem;
-      background: var(--bg-secondary);
-      padding: 0.2rem;
-      border-radius: var(--radius-pill);
     }
 
-    .pill {
-      padding: 0.35rem 1rem;
+    .nav-links a {
+      padding: 0.5rem 1.2rem;
       border-radius: var(--radius-pill);
-      color: var(--text-secondary);
-      font-family: var(--font-heading);
-      font-size: 0.8rem;
-      font-weight: 500;
-      letter-spacing: 0.02em;
+      color: rgba(255, 255, 255, 0.85);
+      font-family: 'Bebas Neue', var(--font-heading), sans-serif;
+      font-size: 1.1rem;
+      font-weight: 400;
+      letter-spacing: 0.1em;
       transition: all var(--transition);
     }
 
-    .pill:hover {
-      color: var(--text-primary);
-      background: rgba(0,0,0,0.04);
+    .nav-links a:hover {
+      color: #fff;
+      background: rgba(30, 90, 40, 0.4);
     }
 
-    .pill.active {
+    .nav-links a.active {
       color: #fff;
-      background: var(--accent);
-      box-shadow: var(--shadow-sm);
+      background: #2d7a3a;
     }
 
     .nav-auth {
@@ -127,14 +114,18 @@ import { AuthService } from './services/auth.service';
     }
 
     .user-name {
-      color: var(--text-secondary);
-      font-size: 0.85rem;
-      font-weight: 500;
+      color: rgba(255, 255, 255, 0.9);
+      font-family: 'Bebas Neue', var(--font-heading), sans-serif;
+      font-size: 1.05rem;
+      font-weight: 400;
+      letter-spacing: 0.08em;
     }
 
     .btn-sm {
-      padding: 0.35rem 0.9rem;
-      font-size: 0.75rem;
+      padding: 0.4rem 1.1rem;
+      font-size: 0.85rem;
+      font-family: 'Bebas Neue', var(--font-heading), sans-serif;
+      letter-spacing: 0.08em;
     }
 
     .main-content {
@@ -142,11 +133,21 @@ import { AuthService } from './services/auth.service';
       overflow: hidden;
     }
 
+    .main-full {
+      height: 100vh;
+    }
+
     @media (max-width: 768px) {
-      .nav-pills { display: none; }
+      .nav-links { display: none; }
+      .nav-container { padding: 0 1rem; }
     }
   `],
 })
 export class AppComponent {
-  constructor(public authService: AuthService) {}
+  isHome$ = this.router.events.pipe(
+    filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+    map(e => e.urlAfterRedirects === '/')
+  );
+
+  constructor(public authService: AuthService, private router: Router) {}
 }

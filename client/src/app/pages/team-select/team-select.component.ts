@@ -85,10 +85,10 @@ import { Team } from '../../models/team.model';
     .page-sub { color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.25rem; }
     .columns { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; min-height: 0; }
     .team-column {
-      background: #fff; border: 1px solid var(--border-color);
+      background: var(--bg-card); border: 1px solid var(--border-color);
       border-radius: var(--radius-md); padding: 1rem;
       display: flex; flex-direction: column; min-height: 0;
-      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(12px);
     }
     .column-title { font-family: var(--font-heading); font-size: 0.95rem; font-weight: 700; text-align: center; margin-bottom: 0.75rem; }
     .home-label { color: var(--accent); }
@@ -101,17 +101,17 @@ import { Team } from '../../models/team.model';
       padding: 0.5rem 0.7rem; border-radius: var(--radius-sm);
       cursor: pointer; transition: all var(--transition);
     }
-    .team-item:hover { background: var(--bg-secondary); }
-    .team-item.selected { background: rgba(196, 83, 42, 0.06); border-left: 3px solid var(--accent); }
+    .team-item:hover { background: rgba(255, 255, 255, 0.06); }
+    .team-item.selected { background: rgba(106, 191, 64, 0.1); border-left: 3px solid var(--accent); }
     .team-name { font-weight: 500; font-size: 0.85rem; }
     .team-league { font-size: 0.7rem; color: var(--text-muted); }
     .empty { text-align: center; color: var(--text-muted); padding: 2rem; }
     .continue-bar {
-      margin-top: 0.75rem; background: #fff;
+      margin-top: 0.75rem; background: rgba(106, 191, 64, 0.08);
       border: 1px solid var(--accent); border-radius: var(--radius-md);
       padding: 0.75rem 1.25rem; display: flex;
       align-items: center; justify-content: space-between;
-      animation: slideUp 0.3s ease; box-shadow: var(--shadow-md);
+      animation: slideUp 0.3s ease; box-shadow: 0 0 20px rgba(106, 191, 64, 0.15);
     }
     @keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     .matchup { display: flex; align-items: center; gap: 0.6rem; }

@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "seed": "node seeds/seed.js",
+    "seed:matches": "node seeds/seedMatches.js",
+    "seed:all": "node seeds/seed.js && node seeds/seedMatches.js",
     "dev": "node --watch server.js"
   },
   "dependencies": {

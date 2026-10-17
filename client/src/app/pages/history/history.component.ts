@@ -90,10 +90,10 @@ import { SimulationResult } from '../../models/simulation.model';
     .center-msg { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-secondary); }
     .history-list { flex: 1; overflow-y: auto; min-height: 0; display: flex; flex-direction: column; gap: 0.5rem; }
     .history-card {
-      background: #fff; border: 1px solid var(--border-color);
+      background: var(--bg-card); border: 1px solid var(--border-color);
       border-radius: var(--radius-md); padding: 0.75rem 1rem;
       cursor: pointer; transition: all var(--transition);
-      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(12px);
     }
     .history-card:hover { border-color: var(--accent); }
     .card-header { display: flex; justify-content: space-between; align-items: center; }
@@ -105,8 +105,8 @@ import { SimulationResult } from '../../models/simulation.model';
       font-size: 0.65rem; font-weight: 600; padding: 0.15rem 0.4rem;
       border-radius: 4px; text-transform: uppercase;
     }
-    .mode-badge.club { background: rgba(196,83,42,0.1); color: var(--accent); }
-    .mode-badge.dream { background: rgba(59,95,192,0.1); color: var(--accent-blue); }
+    .mode-badge.club { background: rgba(106,191,64,0.15); color: var(--accent); }
+    .mode-badge.dream { background: rgba(96,165,250,0.15); color: var(--accent-blue); }
     .h-date { font-size: 0.75rem; color: var(--text-muted); }
     .card-detail {
       margin-top: 0.75rem; padding-top: 0.75rem;
