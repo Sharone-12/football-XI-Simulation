@@ -192,7 +192,7 @@ import { AuthService } from '../../services/auth.service';
 
     .scoreboard {
       display: flex; align-items: center; justify-content: center; gap: 1.5rem;
-      background: var(--bg-card); border: 1px solid var(--border-color);
+      background: rgba(245,240,225,0.85); border: 1px solid var(--border-color);
       border-radius: var(--radius-md); padding: 1.25rem 2rem;
       backdrop-filter: blur(12px); flex-shrink: 0;
     }
@@ -279,7 +279,7 @@ import { AuthService } from '../../services/auth.service';
       flex: 1; overflow-y: auto; min-height: 0;
       margin-top: 0.75rem;
       display: flex; flex-direction: column; gap: 0;
-      background: var(--bg-card); border: 1px solid var(--border-color);
+      background: rgba(245,240,225,0.85); border: 1px solid var(--border-color);
       border-radius: var(--radius-md); padding: 0.5rem;
       backdrop-filter: blur(12px);
     }
@@ -326,7 +326,7 @@ import { AuthService } from '../../services/auth.service';
     .skip-btn:hover { border-color: var(--accent); color: var(--accent); }
 
     .potm-card {
-      background: linear-gradient(135deg, rgba(26,138,90,0.08), rgba(212,160,23,0.08));
+      background: linear-gradient(135deg, rgba(245,240,225,0.9), rgba(245,240,225,0.85));
       border: 1px solid rgba(251,191,36,0.4); border-radius: var(--radius-md);
       padding: 0.75rem 1rem; text-align: center;
       animation: fadeIn 0.5s ease;
@@ -362,7 +362,7 @@ import { AuthService } from '../../services/auth.service';
     }
     .pm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
     .pm-card {
-      background: var(--bg-card); border: 1px solid var(--border-color);
+      background: rgba(245,240,225,0.85); border: 1px solid var(--border-color);
       border-radius: var(--radius-md); padding: 1.5rem;
       backdrop-filter: blur(12px);
     }
