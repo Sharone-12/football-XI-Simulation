@@ -10,6 +10,7 @@ import { Team } from '../../models/team.model';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
+    <img src="assets/teams-player.png" alt="" class="deco-player" />
     <div class="page">
       <div class="page-header">
         <h1 class="page-title">Club vs Club</h1>
@@ -32,6 +33,7 @@ import { Team } from '../../models/team.model';
             <div class="team-list">
               @for (team of homeTeams; track team.team_id) {
                 <div class="team-item" [class.selected]="selectedHome?.team_id === team.team_id" (click)="selectTeam('home', team)">
+                  <img class="team-crest" [src]="'https://img.sofascore.com/api/v1/team/' + team.team_id + '/image'" referrerpolicy="no-referrer" alt="" />
                   <span class="team-name">{{ team.name }}</span>
                   <span class="team-league">{{ team.league }}</span>
                 </div>
@@ -56,6 +58,7 @@ import { Team } from '../../models/team.model';
             <div class="team-list">
               @for (team of awayTeams; track team.team_id) {
                 <div class="team-item" [class.selected]="selectedAway?.team_id === team.team_id" (click)="selectTeam('away', team)">
+                  <img class="team-crest" [src]="'https://img.sofascore.com/api/v1/team/' + team.team_id + '/image'" referrerpolicy="no-referrer" alt="" />
                   <span class="team-name">{{ team.name }}</span>
                   <span class="team-league">{{ team.league }}</span>
                 </div>
@@ -69,8 +72,10 @@ import { Team } from '../../models/team.model';
       @if (selectedHome && selectedAway) {
         <div class="continue-bar">
           <div class="matchup">
+            <img class="matchup-crest" [src]="'https://img.sofascore.com/api/v1/team/' + selectedHome.team_id + '/image'" referrerpolicy="no-referrer" alt="" />
             <span class="matchup-team">{{ selectedHome.name }}</span>
             <span class="matchup-vs">vs</span>
+            <img class="matchup-crest" [src]="'https://img.sofascore.com/api/v1/team/' + selectedAway.team_id + '/image'" referrerpolicy="no-referrer" alt="" />
             <span class="matchup-team">{{ selectedAway.name }}</span>
           </div>
           <button class="btn btn-primary" (click)="goToLineup()">Continue to Lineup &rarr;</button>
@@ -79,7 +84,13 @@ import { Team } from '../../models/team.model';
     </div>
   `,
   styles: [`
-    .page { height: 100%; display: flex; flex-direction: column; max-width: 1100px; margin: 0 auto; padding: 1rem 1rem 0.75rem; }
+    :host { display: block; height: 100%; position: relative; overflow: hidden; }
+    .page { height: 100%; display: flex; flex-direction: column; max-width: 1100px; margin: 0 auto; padding: 1rem 1rem 0.75rem; position: relative; }
+    .deco-player {
+      position: fixed; left: -12%; bottom: -3%; height: 105%;
+      width: auto; object-fit: contain; z-index: 0;
+      pointer-events: none;
+    }
     .page-header { text-align: center; margin-bottom: 1rem; }
     .page-title { font-family: var(--font-heading); font-size: 1.5rem; font-weight: 700; }
     .page-sub { color: var(--text-secondary); font-size: 0.85rem; margin-top: 0.25rem; }
@@ -96,18 +107,20 @@ import { Team } from '../../models/team.model';
     .filters { display: flex; gap: 0.4rem; margin-bottom: 0.75rem; }
     .filters select, .filters input { flex: 1; min-width: 0; font-size: 0.8rem; padding: 0.4rem 0.6rem; }
     .team-list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 2px; min-height: 0; }
+    .team-crest { width: 24px; height: 24px; object-fit: contain; flex-shrink: 0; }
     .team-item {
-      display: flex; justify-content: space-between; align-items: center;
+      display: flex; align-items: center; gap: 0.5rem;
       padding: 0.5rem 0.7rem; border-radius: var(--radius-sm);
       cursor: pointer; transition: all var(--transition);
     }
-    .team-item:hover { background: rgba(255, 255, 255, 0.06); }
-    .team-item.selected { background: rgba(106, 191, 64, 0.1); border-left: 3px solid var(--accent); }
-    .team-name { font-weight: 500; font-size: 0.85rem; }
-    .team-league { font-size: 0.7rem; color: var(--text-muted); }
+    .team-item:hover { background: rgba(26, 60, 42, 0.06); }
+    .team-item.selected { background: rgba(26, 138, 90, 0.1); border-left: 3px solid var(--accent); }
+    .team-name { font-weight: 500; font-size: 0.85rem; flex: 1; }
+    .team-league { font-size: 0.7rem; color: var(--text-muted); flex-shrink: 0; }
+    .matchup-crest { width: 32px; height: 32px; object-fit: contain; }
     .empty { text-align: center; color: var(--text-muted); padding: 2rem; }
     .continue-bar {
-      margin-top: 0.75rem; background: rgba(106, 191, 64, 0.08);
+      margin-top: 0.75rem; background: rgba(26, 138, 90, 0.08);
       border: 1px solid var(--accent); border-radius: var(--radius-md);
       padding: 0.75rem 1.25rem; display: flex;
       align-items: center; justify-content: space-between;

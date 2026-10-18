@@ -105,7 +105,7 @@ import { SimulationResult } from '../../models/simulation.model';
       font-size: 0.65rem; font-weight: 600; padding: 0.15rem 0.4rem;
       border-radius: 4px; text-transform: uppercase;
     }
-    .mode-badge.club { background: rgba(106,191,64,0.15); color: var(--accent); }
+    .mode-badge.club { background: rgba(26,138,90,0.15); color: var(--accent); }
     .mode-badge.dream { background: rgba(96,165,250,0.15); color: var(--accent-blue); }
     .h-date { font-size: 0.75rem; color: var(--text-muted); }
     .card-detail {

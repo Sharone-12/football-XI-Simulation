@@ -4,6 +4,13 @@
  * Simulates a football match between two lineups using real player stats.
  */
 
+// Soft cap: linear up to knee, then logarithmic growth — lets quality gaps show
+function softCap(xg, floor, knee) {
+  if (xg <= floor) return floor;
+  if (xg <= knee) return xg;
+  return knee + Math.log(1 + xg - knee) * 1.5;
+}
+
 // Poisson random number generator
 function poissonRandom(lambda) {
   let L = Math.exp(-lambda);
@@ -61,34 +68,40 @@ function calculateTeamRatings(players) {
   const mids = groups.midfielders;
   const defenders = groups.defenders;
 
-  // Attack rating from forwards + attacking mids
+  // Attack rating — goals/assists form + shooting quality
   const attackGroup = attackers.length > 0 ? attackers : groups.forwards.length > 0 ? groups.forwards : mids;
   const attackRating =
-    (avgStat(attackGroup, 'xg_p90') * 3 +
-      avgStat(attackGroup, 'shots_p90') * 1 +
+    (avgStat(attackGroup, 'goals_p90') * 5 +
+      avgStat(attackGroup, 'xg_p90') * 3 +
+      avgStat(attackGroup, 'assists_p90') * 2 +
       avgStat(attackGroup, 'shots_on_target_p90') * 2 +
-      avgStat(attackGroup, 'dribbles_p90') * 1 +
-      avgStat(attackGroup, 'big_chances_created_p90') * 2) / 9;
+      avgStat(attackGroup, 'big_chances_created_p90') * 2 +
+      avgStat(attackGroup, 'dribbles_p90') * 1) / 15;
 
-  // Midfield rating
+  // Midfield rating — creativity + ball progression
   const midfieldRating =
-    (avgStat(mids, 'passes_p90') * 0.5 +
-      avgStat(mids, 'key_passes_p90') * 3 +
-      avgStat(mids, 'final_third_passes_p90') * 1 +
-      avgStat(mids, 'total_passes_p90') * 0.3) / 4.8;
+    (avgStat(mids, 'key_passes_p90') * 3 +
+      avgStat(mids, 'xa_p90') * 3 +
+      avgStat(mids, 'final_third_passes_p90') * 1.5 +
+      avgStat(mids, 'passes_p90') * 0.5 +
+      avgStat(mids, 'touches_p90') * 0.2) / 8.2;
 
   // Defense rating
   const defenseRating =
     (avgStat(defenders, 'tackles_won_p90') * 2 +
       avgStat(defenders, 'interceptions_p90') * 2 +
       avgStat(defenders, 'clearances_p90') * 1.5 +
+      avgStat(defenders, 'blocked_shots_p90') * 1.5 +
       avgStat(defenders, 'aerials_won_p90') * 1 +
-      avgStat(defenders, 'recoveries_p90') * 1.5) / 8;
+      avgStat(defenders, 'recoveries_p90') * 1.5) / 9.5;
 
-  // GK rating
+  // GK rating — higher means harder to score against
   const gkRating = groups.goalkeepers.length > 0
-    ? (avgStat(groups.goalkeepers, 'recoveries_p90') * 2 + avgStat(groups.goalkeepers, 'passes_p90') * 0.5) / 2.5
-    : 1;
+    ? (avgStat(groups.goalkeepers, 'recoveries_p90') * 2 +
+       avgStat(groups.goalkeepers, 'blocked_shots_p90') * 3 +
+       avgStat(groups.goalkeepers, 'clearances_p90') * 1.5 +
+       avgStat(groups.goalkeepers, 'passes_p90') * 0.3) / 6.8
+    : 0.5;
 
   return { attackRating, midfieldRating, defenseRating, gkRating };
 }
@@ -262,23 +275,22 @@ function simulateMatch(homeLineup, awayLineup) {
   const awayMidfield = awayRatings.midfieldRating * awayMods.midfield;
   const awayDefense = awayRatings.defenseRating * awayMods.defense;
 
-  // Calculate expected goals
-  const baseFactor = 2.5;
+  // xG from attack vs opposition defense — individual quality drives the gap
+  const baseFactor = 1.9;
   const homeAdvantage = 1.1;
 
   let homeXG =
-    ((homeAttack * 0.5 + homeMidfield * 0.3) /
-      Math.max(awayDefense * 0.4 + awayMidfield * 0.2, 0.1)) *
+    ((homeAttack * 0.55 + homeMidfield * 0.3) /
+      Math.max(awayDefense * 0.35 + awayMidfield * 0.15 + awayRatings.gkRating * 0.3, 0.12)) *
     baseFactor *
     homeAdvantage;
   let awayXG =
-    ((awayAttack * 0.5 + awayMidfield * 0.3) /
-      Math.max(homeDefense * 0.4 + homeMidfield * 0.2, 0.1)) *
+    ((awayAttack * 0.55 + awayMidfield * 0.3) /
+      Math.max(homeDefense * 0.35 + homeMidfield * 0.15 + homeRatings.gkRating * 0.3, 0.12)) *
     baseFactor;
 
-  // Clamp xG
-  homeXG = Math.max(0.3, Math.min(5.0, homeXG));
-  awayXG = Math.max(0.3, Math.min(5.0, awayXG));
+  homeXG = softCap(homeXG, 0.3, 3.5);
+  awayXG = softCap(awayXG, 0.2, 3.0);
 
   // Generate actual goals via Poisson
   const homeGoals = poissonRandom(homeXG);
@@ -298,8 +310,15 @@ function simulateMatch(homeLineup, awayLineup) {
   );
 
   // Generate match stats
-  const totalMidfield = homeMidfield + awayMidfield || 1;
-  const homePossession = Math.round((homeMidfield / totalMidfield) * 100);
+  // Possession from passing volume + touches across the whole team
+  const homePasses = avgStat(homeLineup.players, 'passes_p90') || 1;
+  const awayPasses = avgStat(awayLineup.players, 'passes_p90') || 1;
+  const homeTouches = avgStat(homeLineup.players, 'touches_p90') || 1;
+  const awayTouches = avgStat(awayLineup.players, 'touches_p90') || 1;
+  const homeControl = homePasses * 0.6 + homeTouches * 0.4;
+  const awayControl = awayPasses * 0.6 + awayTouches * 0.4;
+  const totalControl = homeControl + awayControl || 1;
+  const homePossession = Math.round((homeControl / totalControl) * 100);
   const awayPossession = 100 - homePossession;
 
   const homeShots = Math.round(homeXG * 4 + Math.random() * 6);
@@ -313,8 +332,8 @@ function simulateMatch(homeLineup, awayLineup) {
       away: Math.min(awayShots, Math.round(awayShots * 0.4 + Math.random() * 3)),
     },
     passes: {
-      home: Math.round(homeMidfield * 80 + Math.random() * 100),
-      away: Math.round(awayMidfield * 80 + Math.random() * 100),
+      home: Math.round(homePasses * 10 * (homePossession / 50) + Math.random() * 80),
+      away: Math.round(awayPasses * 10 * (awayPossession / 50) + Math.random() * 80),
     },
     fouls: {
       home: Math.round(6 + Math.random() * 10),
@@ -326,6 +345,24 @@ function simulateMatch(homeLineup, awayLineup) {
     },
   };
 
+  // Player of the Match — score from timeline contributions + raw quality
+  const allPlayers = [
+    ...homeLineup.players.map(p => ({ ...p, team: homeTeamName })),
+    ...awayLineup.players.map(p => ({ ...p, team: awayTeamName })),
+  ];
+  const potmScores = allPlayers.map(p => {
+    const goals = timeline.filter(e => e.type === 'goal' && e.player === p.player).length;
+    const assists = timeline.filter(e => e.type === 'goal' && e.description.includes(`Assisted by ${p.player}`)).length;
+    const chances = timeline.filter(e => e.type === 'chance' && e.player === p.player).length;
+    const saves = timeline.filter(e => e.type === 'save' && e.player === p.player).length;
+    const raw = goals * 1.5 + assists * 1 + chances * 0.4 + saves * 0.3
+      + (p.xg_p90 || 0) * 0.15 + (p.key_passes_p90 || 0) * 0.1 + Math.random() * 0.3;
+    const rating = Math.min(10, Math.round((5.5 + raw + Math.random() * 1) * 10) / 10);
+    return { player_id: p.player_id, player: p.player, team: p.team, rating, goals, assists, chances, saves };
+  });
+  potmScores.sort((a, b) => b.rating - a.rating);
+  const potm = potmScores[0];
+
   return {
     result: {
       homeGoals,
@@ -335,6 +372,7 @@ function simulateMatch(homeLineup, awayLineup) {
     },
     timeline,
     stats,
+    potm,
   };
 }
 

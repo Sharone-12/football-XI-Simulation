@@ -32,6 +32,7 @@ import { PlayerCardComponent } from '../../components/player-card/player-card.co
               [formation]="homeFormation" [players]="homePlayers" [editable]="true"
               [selectedSlotIndex]="activeSide === 'home' ? activeSlotIndex : -1"
               (slotSelected)="onSlotSelected('home', $event)"
+              (slotRemoved)="onSlotRemoved('home', $event)"
             />
           </div>
           <input type="text" placeholder="Home XI name" [(ngModel)]="homeTeamName" class="name-input" />
@@ -101,6 +102,7 @@ import { PlayerCardComponent } from '../../components/player-card/player-card.co
               [formation]="awayFormation" [players]="awayPlayers" [editable]="true"
               [selectedSlotIndex]="activeSide === 'away' ? activeSlotIndex : -1"
               (slotSelected)="onSlotSelected('away', $event)"
+              (slotRemoved)="onSlotRemoved('away', $event)"
             />
           </div>
           <input type="text" placeholder="Away XI name" [(ngModel)]="awayTeamName" class="name-input" />
@@ -149,8 +151,8 @@ import { PlayerCardComponent } from '../../components/player-card/player-card.co
       border: 1px solid var(--border-color);
       font-family: var(--font-heading); font-weight: 600; font-size: 0.75rem;
     }
-    .toggle-btn.active { background: rgba(106,191,64,0.12); color: var(--accent); border-color: var(--accent); }
-    .toggle-btn.away.active { background: rgba(96,165,250,0.12); color: var(--accent-blue); border-color: var(--accent-blue); }
+    .toggle-btn.active { background: rgba(26,138,90,0.12); color: var(--accent); border-color: var(--accent); }
+    .toggle-btn.away.active { background: rgba(45,122,106,0.12); color: var(--accent-blue); border-color: var(--accent-blue); }
     .player-pool-list { flex: 1; display: flex; flex-direction: column; gap: 0.3rem; overflow-y: auto; min-height: 0; }
     .pagination { display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
     .page-info { font-size: 0.75rem; color: var(--text-muted); }
@@ -216,20 +218,42 @@ export class DreamXiComponent implements OnInit {
   }
 
   onSlotSelected(side: 'home' | 'away', index: number): void {
+    if (this.activeSide === side && this.activeSlotIndex >= 0 && this.activeSlotIndex !== index) {
+      const players = side === 'home' ? this.homePlayers : this.awayPlayers;
+      const temp = players[this.activeSlotIndex];
+      players[this.activeSlotIndex] = players[index];
+      players[index] = temp;
+      this.replaceArray(side);
+      this.activeSlotIndex = -1;
+      return;
+    }
     this.activeSide = side;
-    this.activeSlotIndex = (this.activeSlotIndex === index && this.activeSide === side) ? -1 : index;
+    this.activeSlotIndex = (this.activeSlotIndex === index) ? -1 : index;
+  }
+
+  onSlotRemoved(side: 'home' | 'away', index: number): void {
+    if (side === 'home') {
+      this.homePlayers[index] = null;
+      this.homePlayers = [...this.homePlayers];
+    } else {
+      this.awayPlayers[index] = null;
+      this.awayPlayers = [...this.awayPlayers];
+    }
+    this.activeSide = side;
+    this.activeSlotIndex = index;
   }
 
   onPlayerSelected(player: Player): void {
     const homeIdx = this.homePlayers.findIndex(p => p?.player_id === player.player_id);
-    if (homeIdx !== -1) { this.homePlayers[homeIdx] = null; this.activeSide = 'home'; this.activeSlotIndex = homeIdx; return; }
+    if (homeIdx !== -1) { this.homePlayers[homeIdx] = null; this.replaceArray('home'); this.activeSide = 'home'; this.activeSlotIndex = homeIdx; return; }
     const awayIdx = this.awayPlayers.findIndex(p => p?.player_id === player.player_id);
-    if (awayIdx !== -1) { this.awayPlayers[awayIdx] = null; this.activeSide = 'away'; this.activeSlotIndex = awayIdx; return; }
+    if (awayIdx !== -1) { this.awayPlayers[awayIdx] = null; this.replaceArray('away'); this.activeSide = 'away'; this.activeSlotIndex = awayIdx; return; }
 
     const players = this.activeSide === 'home' ? this.homePlayers : this.awayPlayers;
     let targetSlot: number;
-    if (this.activeSlotIndex >= 0 && this.activeSlotIndex < 11 && players[this.activeSlotIndex] === null) {
+    if (this.activeSlotIndex >= 0 && this.activeSlotIndex < 11) {
       targetSlot = this.activeSlotIndex;
+      if (players[targetSlot] !== null) players[targetSlot] = null;
     } else {
       targetSlot = players.findIndex(p => p === null);
       if (targetSlot === -1) return;
@@ -240,9 +264,14 @@ export class DreamXiComponent implements OnInit {
       position: player.position, detailed_position: player.detailed_position,
     };
 
+    this.replaceArray(this.activeSide);
     const nextEmpty = players.findIndex((p, i) => i > targetSlot && p === null);
-    this.activeSlotIndex = nextEmpty >= 0 ? nextEmpty : players.findIndex(p => p === null);
-    if (this.activeSlotIndex === undefined) this.activeSlotIndex = -1;
+    this.activeSlotIndex = nextEmpty >= 0 ? nextEmpty : players.findIndex(p => p === null) ?? -1;
+  }
+
+  private replaceArray(side: 'home' | 'away'): void {
+    if (side === 'home') this.homePlayers = [...this.homePlayers];
+    else this.awayPlayers = [...this.awayPlayers];
   }
 
   simulate(): void {

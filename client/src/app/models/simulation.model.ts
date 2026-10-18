@@ -10,6 +10,7 @@ export interface SimulationResult {
   };
   timeline: MatchEvent[];
   stats: MatchStats;
+  potm?: { player_id: number; player: string; team: string; rating: number; goals: number; assists: number; chances: number; saves: number };
   mode: 'club' | 'dream';
   createdAt?: string;
 }

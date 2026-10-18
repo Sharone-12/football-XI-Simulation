@@ -9,6 +9,15 @@ import { Player } from '../../models/player.model';
   template: `
     <div class="player-card" [class.selected]="selected" [class.clickable]="clickable" (click)="onSelect()">
       <div class="player-header">
+        <img class="player-img"
+          [src]="'https://img.sofascore.com/api/v1/player/' + player.player_id + '/image'"
+          referrerpolicy="no-referrer"
+          (error)="imgFailed = true"
+          [style.display]="imgFailed ? 'none' : 'block'"
+          alt="" />
+        @if (imgFailed) {
+          <div class="player-initials">{{ getInitials() }}</div>
+        }
         <div class="player-info">
           <span class="player-name">{{ player.player }}</span>
           <span class="player-team">{{ player.team }}</span>
@@ -54,9 +63,16 @@ import { Player } from '../../models/player.model';
     }
     .player-card.selected {
       border-color: var(--accent);
-      background: rgba(106, 191, 64, 0.1);
+      background: rgba(26, 138, 90, 0.1);
     }
-    .player-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
+    .player-header { display: flex; align-items: center; gap: 0.5rem; }
+    .player-img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: rgba(26,60,42,0.05); }
+    .player-initials {
+      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+      background: rgba(26,138,90,0.15); color: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.7rem;
+    }
     .player-info { display: flex; flex-direction: column; min-width: 0; }
     .player-name { font-weight: 600; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .player-team { font-size: 0.7rem; color: var(--text-muted); }
@@ -85,6 +101,15 @@ export class PlayerCardComponent {
   @Input() clickable = false;
   @Input() showStats = false;
   @Output() selectPlayer = new EventEmitter<Player>();
+  imgFailed = false;
+
+  getInitials(): string {
+    const parts = (this.player.player || '').trim().split(/\s+/);
+    if (parts.length === 0) return '?';
+    const f = parts[0][0] || '';
+    const l = parts.length > 1 ? (parts[parts.length - 1][0] || '') : '';
+    return (f + l).toUpperCase();
+  }
 
   get positionClass(): string {
     const pos = (this.player.position || '').toLowerCase();

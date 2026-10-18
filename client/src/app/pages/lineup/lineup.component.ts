@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -34,6 +34,9 @@ import { PlayerCardComponent } from '../../components/player-card/player-card.co
             <select [ngModel]="activeTab === 'home' ? homeFormation : awayFormation" (ngModelChange)="setFormation($event)">
               @for (f of formations; track f) { <option [value]="f">{{ f }}</option> }
             </select>
+            @if (hasBestXI) {
+              <button class="btn-best-xi" (click)="fillBestXI()">Best XI</button>
+            }
           </div>
           <div class="pitch-wrap">
             <app-formation-grid
@@ -42,6 +45,7 @@ import { PlayerCardComponent } from '../../components/player-card/player-card.co
               [editable]="true"
               [selectedSlotIndex]="activeSlotIndex"
               (slotSelected)="onSlotSelected($event)"
+              (slotRemoved)="onSlotRemoved($event)"
             />
           </div>
         </div>
@@ -87,7 +91,7 @@ import { PlayerCardComponent } from '../../components/player-card/player-card.co
       font-family: var(--font-heading); font-weight: 600; font-size: 0.8rem;
       box-shadow: var(--shadow-sm);
     }
-    .tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .tab.active { background: var(--accent); color: #f5f0e1; border-color: var(--accent); }
     .lineup-count { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
     .lineup-layout { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; min-height: 0; }
     .pitch-section { display: flex; flex-direction: column; gap: 0.5rem; min-height: 0; }
@@ -101,6 +105,13 @@ import { PlayerCardComponent } from '../../components/player-card/player-card.co
     .empty { text-align: center; color: var(--text-muted); padding: 2rem; }
     .simulate-bar { padding: 0.5rem 0; text-align: center; }
     .btn-lg { padding: 0.7rem 2.5rem; font-size: 0.95rem; }
+    .btn-best-xi {
+      padding: 0.35rem 0.8rem; border-radius: var(--radius-pill);
+      background: transparent; color: var(--accent); border: 1px solid var(--accent);
+      font-family: var(--font-heading); font-weight: 600; font-size: 0.75rem;
+      cursor: pointer; white-space: nowrap;
+    }
+    .btn-best-xi:hover { background: var(--accent); color: #f5f0e1; }
     @media (max-width: 768px) { .lineup-layout { grid-template-columns: 1fr; } }
   `],
 })
@@ -116,12 +127,13 @@ export class LineupComponent implements OnInit {
   awaySquad: Player[] = [];
   activeTab: 'home' | 'away' = 'home';
   activeSlotIndex = 0;
+  userClickedSlot = false;
   playerSearch = '';
   loadingHome = false;
   loadingAway = false;
   simulating = false;
 
-  constructor(private api: ApiService, private router: Router) {
+  constructor(private api: ApiService, private router: Router, private zone: NgZone) {
     const nav = this.router.getCurrentNavigation();
     const state = nav?.extras?.state as any;
     if (state) { this.homeTeam = state.homeTeam; this.awayTeam = state.awayTeam; }
@@ -184,7 +196,30 @@ export class LineupComponent implements OnInit {
   }
 
   onSlotSelected(index: number): void {
+    const players = this.activeTab === 'home' ? this.homePlayers : this.awayPlayers;
+    if (this.activeSlotIndex >= 0 && this.activeSlotIndex !== index) {
+      const temp = players[this.activeSlotIndex];
+      players[this.activeSlotIndex] = players[index];
+      players[index] = temp;
+      this.replaceArray();
+      this.activeSlotIndex = -1;
+      this.userClickedSlot = false;
+      return;
+    }
+    this.userClickedSlot = true;
     this.activeSlotIndex = this.activeSlotIndex === index ? -1 : index;
+  }
+
+  onSlotRemoved(index: number): void {
+    if (this.activeTab === 'home') {
+      this.homePlayers[index] = null;
+      this.homePlayers = [...this.homePlayers];
+    } else {
+      this.awayPlayers[index] = null;
+      this.awayPlayers = [...this.awayPlayers];
+    }
+    this.activeSlotIndex = index;
+    this.userClickedSlot = true;
   }
 
   isPlayerSelected(player: Player): boolean {
@@ -196,26 +231,83 @@ export class LineupComponent implements OnInit {
     const existingIdx = players.findIndex(p => p?.player_id === player.player_id);
     if (existingIdx !== -1) {
       players[existingIdx] = null;
+      this.replaceArray();
       this.activeSlotIndex = existingIdx;
+      this.userClickedSlot = false;
       return;
     }
 
     let targetSlot: number;
-    if (this.activeSlotIndex >= 0 && this.activeSlotIndex < 11 && players[this.activeSlotIndex] === null) {
+    if (this.activeSlotIndex >= 0 && this.activeSlotIndex < 11) {
       targetSlot = this.activeSlotIndex;
+      if (players[targetSlot] !== null) {
+        players[targetSlot] = null;
+      }
     } else {
       targetSlot = players.findIndex(p => p === null);
-      if (targetSlot === -1) return;
     }
+    if (targetSlot === -1) return;
 
     players[targetSlot] = {
       player_id: player.player_id, player: player.player,
       position: player.position, detailed_position: player.detailed_position,
     };
 
-    const nextEmpty = players.findIndex((p, i) => i > targetSlot && p === null);
-    this.activeSlotIndex = nextEmpty >= 0 ? nextEmpty : players.findIndex(p => p === null);
-    if (this.activeSlotIndex === undefined) this.activeSlotIndex = -1;
+    this.replaceArray();
+    this.userClickedSlot = false;
+    const nextEmpty = players.findIndex(p => p === null);
+    this.activeSlotIndex = nextEmpty >= 0 ? nextEmpty : -1;
+  }
+
+  private replaceArray(): void {
+    if (this.activeTab === 'home') this.homePlayers = [...this.homePlayers];
+    else this.awayPlayers = [...this.awayPlayers];
+  }
+
+  private static readonly BEST_XI: Record<string, string[]> = {
+    'FC Barcelona': [
+      '', 'João Cancelo', 'Eric García', 'Pau Cubarsí', 'Jules Koundé',
+      'Pedri', 'Rodri', 'Fermín López',
+      'Anthony Gordon', 'Raphinha', 'Lamine Yamal',
+    ],
+    'Real Madrid': [
+      '', 'Marc Cucurella', 'Ibrahima Konaté', 'Antonio Rüdiger', 'Trent Alexander-Arnold',
+      'Federico Valverde', 'Aurélien Tchouaméni', 'Jude Bellingham',
+      'Vinícius Júnior', 'Kylian Mbappé', 'Yan Diomande',
+    ],
+    'Paris Saint-Germain': [
+      '', 'Nuno Mendes', 'Willian Pacho', 'Marquinhos', 'Achraf Hakimi',
+      'Vitinha', 'Fabián Ruiz', 'João Neves',
+      'Khvicha Kvaratskhelia', 'Ousmane Dembélé', 'Désiré Doué',
+    ],
+  };
+
+  get hasBestXI(): boolean {
+    const team = this.activeTab === 'home' ? this.homeTeam : this.awayTeam;
+    return !!team && team.name in LineupComponent.BEST_XI;
+  }
+
+  fillBestXI(): void {
+    const team = this.activeTab === 'home' ? this.homeTeam : this.awayTeam;
+    if (!team || !(team.name in LineupComponent.BEST_XI)) return;
+    const names = LineupComponent.BEST_XI[team.name];
+    const squad = this.activeTab === 'home' ? this.homeSquad : this.awaySquad;
+    const players: (SelectedPlayer | null)[] = new Array(11).fill(null);
+    for (let i = 1; i < 11; i++) {
+      const p = squad.find(s => s.player === names[i]);
+      if (p) players[i] = {
+        player_id: p.player_id, player: p.player,
+        position: p.position, detailed_position: p.detailed_position,
+      };
+    }
+    if (this.activeTab === 'home') {
+      this.homeFormation = '4-3-3';
+      this.homePlayers = players;
+    } else {
+      this.awayFormation = '4-3-3';
+      this.awayPlayers = players;
+    }
+    this.activeSlotIndex = -1;
   }
 
   simulate(): void {
@@ -232,7 +324,12 @@ export class LineupComponent implements OnInit {
       players: this.awayPlayers.filter((p): p is SelectedPlayer => p !== null),
     };
     this.api.simulate(homeLineup, awayLineup).subscribe({
-      next: (result) => { this.simulating = false; this.router.navigate(['/simulation'], { state: { result } }); },
+      next: (result) => {
+        result.homeTeam.players = [...this.homePlayers] as any;
+        result.awayTeam.players = [...this.awayPlayers] as any;
+        this.simulating = false;
+        this.zone.run(() => this.router.navigate(['/simulation'], { state: { result } }));
+      },
       error: () => { this.simulating = false; },
     });
   }

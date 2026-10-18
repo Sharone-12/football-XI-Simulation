@@ -8,24 +8,28 @@ import { RouterModule } from '@angular/router';
   imports: [CommonModule, RouterModule],
   template: `
     <div class="poster">
-      <div class="teal-accent"></div>
-
-      <div class="title-layer">
+      <div class="center-layer">
         <div class="subtitle">FOOTBALL MATCH SIMULATOR</div>
-        <span class="title-word">TOUCH</span>
-        <span class="title-word">LINE</span>
+        <div class="mode-cards">
+          <a routerLink="/teams" class="mode-card">
+            <span class="mode-title">CLUB VS CLUB</span>
+            <span class="mode-desc">Pick two real squads and simulate a head-to-head match</span>
+          </a>
+          <a routerLink="/dream-xi" class="mode-card">
+            <span class="mode-title">DREAM XI</span>
+            <span class="mode-desc">Build your fantasy lineup from any league and watch them play</span>
+          </a>
+        </div>
       </div>
 
-      <div class="player-layer">
+      <div class="player-layer player-right">
         <img src="assets/hero-player.png" alt="" class="player-img" />
       </div>
 
-      <div class="ui-layer">
-        <span class="year">2026</span>
-        <div class="bottom-block">
-          <a routerLink="/teams" class="cta">PLAY NOW</a>
-        </div>
+      <div class="player-layer player-left">
+        <img src="assets/hero-player-left.png" alt="" class="player-img" />
       </div>
+
 
       <div class="edge left-edge">
         <span class="edge-label">SEASON 26/27</span>
@@ -44,55 +48,83 @@ import { RouterModule } from '@angular/router';
   styles: [`
     .poster {
       height: 100%;
-      background: #b5e61d;
       position: relative;
       overflow: hidden;
     }
 
-    /* Clean teal accent — hard curved edge, not a blob */
-    .teal-accent {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      width: 35%;
-      height: 40%;
-      background: #4dcba6;
-      border-radius: 50% 0 0 0;
-      opacity: 0.55;
-      z-index: 0;
-    }
-
-    /* Title sits BEHIND the player */
-    .title-layer {
+    .center-layer {
       position: absolute;
       z-index: 1;
       top: 50%;
-      left: 50%;
+      left: 53%;
       transform: translate(-50%, -50%);
       display: flex;
       flex-direction: column;
-      align-items: flex-start;
-      line-height: 0.85;
-      pointer-events: none;
+      align-items: center;
+      gap: 0.75rem;
+      width: 30%;
+      max-width: 360px;
     }
 
-    .title-word {
-      display: block;
+    .mode-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      width: 100%;
+    }
+
+    .mode-card {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      padding: 1rem 1.5rem;
+      background: #1a3c2a;
+      border: 2px solid #2a5c40;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+
+    .mode-card:hover {
+      background: #24503a;
+      border-color: #4dcba6;
+      transform: translateY(-2px);
+    }
+
+    .mode-title {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(7rem, 20vw, 18rem);
-      color: #fff;
-      letter-spacing: 0.03em;
+      font-size: 1.4rem;
+      color: #f5f0e1;
+      letter-spacing: 0.1em;
+      white-space: nowrap;
     }
 
-    /* Player renders ON TOP of the title */
+    .mode-desc {
+      font-size: 0.75rem;
+      color: rgba(245, 240, 225, 0.65);
+      line-height: 1.4;
+    }
+
     .player-layer {
       position: absolute;
-      inset: 0;
+      top: 0;
+      bottom: -4%;
       z-index: 2;
       display: flex;
       align-items: flex-end;
-      justify-content: center;
       pointer-events: none;
+    }
+
+    .player-right {
+      right: 5%;
+      justify-content: flex-end;
+      padding-right: 5%;
+    }
+
+    .player-left {
+      left: 0;
+      justify-content: flex-start;
       padding-left: 5%;
     }
 
@@ -102,61 +134,20 @@ import { RouterModule } from '@angular/router';
       object-fit: contain;
     }
 
-    /* Subtitle, year, CTA — on top of everything */
-    .ui-layer {
-      position: absolute;
-      inset: 0;
-      z-index: 3;
-      pointer-events: none;
+    .player-left .player-img {
+      height: 92%;
     }
 
     .subtitle {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(0.9rem, 1.8vw, 1.2rem);
-      color: #fff;
-      letter-spacing: 0.2em;
-      white-space: nowrap;
-      margin-bottom: 0.3rem;
-    }
-
-    .bottom-block {
-      position: absolute;
-      bottom: 7vh;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.8rem;
-    }
-
-    .year {
-      position: absolute;
-      right: 12%;
-      bottom: 28%;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(2rem, 4.5vw, 3.5rem);
-      color: #fff;
-      letter-spacing: 0.12em;
-    }
-
-    .cta {
-      pointer-events: auto;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(1rem, 1.6vw, 1.2rem);
-      color: #fff;
+      font-size: clamp(1.2rem, 2vw, 1.6rem);
+      color: #1a3c2a;
       letter-spacing: 0.15em;
-      border: 2px solid rgba(255, 255, 255, 0.8);
-      border-radius: 50px;
-      padding: 0.6rem 3rem;
-      transition: all 0.2s ease;
+      white-space: nowrap;
+      margin-bottom: 0.5rem;
+      font-weight: 700;
     }
 
-    .cta:hover {
-      background: #fff;
-      color: #b5e61d;
-      border-color: #fff;
-    }
 
     /* Vertical edge labels */
     .edge {
@@ -165,7 +156,7 @@ import { RouterModule } from '@angular/router';
       font-family: 'Bebas Neue', sans-serif;
       font-size: 0.7rem;
       letter-spacing: 0.25em;
-      color: rgba(255, 255, 255, 0.7);
+      color: rgba(245, 240, 225, 0.7);
       writing-mode: vertical-lr;
     }
 
@@ -191,10 +182,11 @@ import { RouterModule } from '@angular/router';
     }
 
     @media (max-width: 768px) {
-      .title-word { font-size: 5rem; }
       .edge { display: none; }
       .player-img { height: 75%; }
-      .ui-layer { padding: 20vh 0 6vh; }
+      .player-left { display: none; }
+      .center-layer { width: 70%; }
+      .mode-card { padding: 0.8rem 1.2rem; }
     }
   `],
 })

@@ -35,7 +35,20 @@ interface PositionSlot {
           [style.top.%]="slot.y"
           (click)="onSlotClick(i)"
         >
-          <div class="slot-dot"></div>
+          @if (slot.player) {
+            <div class="slot-avatar">
+              <img class="slot-img"
+                [src]="'https://img.sofascore.com/api/v1/player/' + slot.player.player_id + '/image'"
+                referrerpolicy="no-referrer"
+                (error)="onImgError($event)"
+                alt="" />
+              @if (editable) {
+                <span class="slot-remove" (mousedown)="onRemove($event, i)">✕</span>
+              }
+            </div>
+          } @else {
+            <div class="slot-dot"></div>
+          }
           <span class="slot-label">
             @if (slot.player) {
               {{ getShortName(slot.player.player) }}
@@ -51,16 +64,17 @@ interface PositionSlot {
     .pitch {
       position: relative;
       width: 100%;
-      padding-bottom: 130%;
+      height: 100%;
+      min-height: 350px;
       background: linear-gradient(
         180deg,
-        #2d8a52 0%, #267a48 10%, #2d8a52 10%,
-        #267a48 20%, #2d8a52 20%, #267a48 30%,
-        #2d8a52 30%, #267a48 40%, #2d8a52 40%,
-        #267a48 50%, #2d8a52 50%, #267a48 60%,
-        #2d8a52 60%, #267a48 70%, #2d8a52 70%,
-        #267a48 80%, #2d8a52 80%, #267a48 90%,
-        #2d8a52 90%, #267a48 100%
+        #237a42 0%, #1e6b3a 10%, #237a42 10%,
+        #1e6b3a 20%, #237a42 20%, #1e6b3a 30%,
+        #237a42 30%, #1e6b3a 40%, #237a42 40%,
+        #1e6b3a 50%, #237a42 50%, #1e6b3a 60%,
+        #237a42 60%, #1e6b3a 70%, #237a42 70%,
+        #1e6b3a 80%, #237a42 80%, #1e6b3a 90%,
+        #237a42 90%, #1e6b3a 100%
       );
       border-radius: var(--radius-md);
       border: 2px solid rgba(255, 255, 255, 0.25);
@@ -112,17 +126,27 @@ interface PositionSlot {
     }
     .position-slot.editable { cursor: pointer; }
 
+    .slot-avatar { position: relative; }
+    .slot-img {
+      width: 48px; height: 48px; border-radius: 50%; object-fit: cover;
+      border: 2px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      background: rgba(255,255,255,0.15);
+    }
+    .slot-remove {
+      position: absolute; top: -5px; right: -5px;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: #dc2626; color: #fff;
+      font-size: 0.65rem; font-weight: 700; line-height: 20px;
+      text-align: center; cursor: pointer;
+      z-index: 5; user-select: none;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+    }
+
     .slot-dot {
       width: 28px; height: 28px; border-radius: 50%;
       background: rgba(255, 255, 255, 0.2);
       border: 2px solid rgba(255, 255, 255, 0.5);
       transition: all var(--transition);
-    }
-
-    .position-slot.filled .slot-dot {
-      background: #fff;
-      border-color: #fff;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     }
 
     .position-slot.active .slot-dot {
@@ -160,6 +184,7 @@ export class FormationGridComponent {
   @Input() editable: boolean = false;
   @Input() selectedSlotIndex: number = -1;
   @Output() slotSelected = new EventEmitter<number>();
+  @Output() slotRemoved = new EventEmitter<number>();
 
   get slots(): PositionSlot[] {
     const layout = this.getFormationLayout(this.formation);
@@ -171,6 +196,17 @@ export class FormationGridComponent {
 
   onSlotClick(index: number): void {
     if (this.editable) this.slotSelected.emit(index);
+  }
+
+  onRemove(event: MouseEvent, index: number): void {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    if (this.editable) this.slotRemoved.emit(index);
+  }
+
+  onImgError(event: Event): void {
+    (event.target as HTMLImageElement).style.display = 'none';
   }
 
   getShortName(name: string): string {

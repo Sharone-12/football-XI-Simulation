@@ -39,7 +39,7 @@ import { filter, map } from 'rxjs/operators';
   `,
   styles: [`
     .navbar {
-      background: var(--bg-primary);
+      background: transparent;
       height: var(--nav-height);
       position: sticky;
       top: 0;
@@ -52,6 +52,14 @@ import { filter, map } from 'rxjs/operators';
       left: 0;
       right: 0;
     }
+
+    .navbar-transparent .nav-logo { color: #1a3c2a; }
+    .navbar-transparent .nav-links a { color: #1a3c2a; }
+    .navbar-transparent .nav-links a:hover { color: #1a3c2a; background: rgba(26, 60, 42, 0.12); }
+    .navbar-transparent .nav-links a.active { color: #f5f0e1; background: #1a3c2a; }
+    .navbar-transparent .user-name { color: #1a3c2a; }
+    .navbar-transparent .btn { background: #1a3c2a; color: #f5f0e1; border-color: #1a3c2a; }
+    .navbar-transparent .btn:hover { background: #24503a; }
 
     .nav-container {
       max-width: 1400px;
@@ -68,10 +76,10 @@ import { filter, map } from 'rxjs/operators';
       font-family: 'Bebas Neue', var(--font-heading), sans-serif;
       font-size: 1.8rem;
       letter-spacing: 0.1em;
-      color: #fff;
+      color: var(--text-primary);
     }
 
-    .nav-logo:hover { color: #fff; }
+    .nav-logo:hover { color: var(--text-primary); }
 
     .logo-touch {
       font-weight: 400;
@@ -89,7 +97,7 @@ import { filter, map } from 'rxjs/operators';
     .nav-links a {
       padding: 0.5rem 1.2rem;
       border-radius: var(--radius-pill);
-      color: rgba(255, 255, 255, 0.85);
+      color: var(--text-secondary);
       font-family: 'Bebas Neue', var(--font-heading), sans-serif;
       font-size: 1.1rem;
       font-weight: 400;
@@ -98,13 +106,13 @@ import { filter, map } from 'rxjs/operators';
     }
 
     .nav-links a:hover {
-      color: #fff;
-      background: rgba(30, 90, 40, 0.4);
+      color: var(--text-primary);
+      background: rgba(26, 60, 42, 0.1);
     }
 
     .nav-links a.active {
-      color: #fff;
-      background: #2d7a3a;
+      color: #f5f0e1;
+      background: var(--green-deep);
     }
 
     .nav-auth {
@@ -114,7 +122,7 @@ import { filter, map } from 'rxjs/operators';
     }
 
     .user-name {
-      color: rgba(255, 255, 255, 0.9);
+      color: var(--text-primary);
       font-family: 'Bebas Neue', var(--font-heading), sans-serif;
       font-size: 1.05rem;
       font-weight: 400;
