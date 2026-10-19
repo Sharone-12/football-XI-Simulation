@@ -1,24 +1,29 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { SimulationResult, MatchEvent } from '../../models/simulation.model';
+import { SimulationResult, MatchEvent, MatchSetup } from '../../models/simulation.model';
 import { FormationGridComponent } from '../../components/formation-grid/formation-grid.component';
 import { StatBarComponent } from '../../components/stat-bar/stat-bar.component';
+import { MatchPitchComponent } from '../../components/match-pitch/match-pitch.component';
+import { LiveMatch, PitchView, TICK_SECONDS } from '../../engine/live-match';
+
+// Match-seconds per real second while a shot or card is building up (the FC26 sim pace).
+const ACTION_SPEED = 15;
 import { HistoryService } from '../../services/history.service';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-simulation',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormationGridComponent, StatBarComponent],
+  imports: [CommonModule, RouterModule, FormationGridComponent, StatBarComponent, MatchPitchComponent],
   template: `
-    @if (result) {
+    @if (setup) {
       <div class="match-page">
         <div class="scoreboard">
           <div class="sb-side home-label">
-            <img class="sb-crest" [src]="'https://img.sofascore.com/api/v1/team/' + result.homeTeam.team_id + '/image'" referrerpolicy="no-referrer" alt="" />
+            <img class="sb-crest" [src]="'https://img.sofascore.com/api/v1/team/' + setup.homeTeam.team_id + '/image'" referrerpolicy="no-referrer" alt="" />
             <div class="sb-col">
-              <span class="sb-team">{{ result.homeTeam.name }}</span>
+              <span class="sb-team">{{ setup.homeTeam.name }}</span>
               @if (matchEnded) {
                 <div class="sb-scorers">
                   @for (g of homeScorers; track $index) {
@@ -35,7 +40,7 @@ import { AuthService } from '../../services/auth.service';
           </div>
           <div class="sb-side away-label">
             <div class="sb-col away-col">
-              <span class="sb-team">{{ result.awayTeam.name }}</span>
+              <span class="sb-team">{{ setup.awayTeam.name }}</span>
               @if (matchEnded) {
                 <div class="sb-scorers">
                   @for (g of awayScorers; track $index) {
@@ -44,7 +49,7 @@ import { AuthService } from '../../services/auth.service';
                 </div>
               }
             </div>
-            <img class="sb-crest" [src]="'https://img.sofascore.com/api/v1/team/' + result.awayTeam.team_id + '/image'" referrerpolicy="no-referrer" alt="" />
+            <img class="sb-crest" [src]="'https://img.sofascore.com/api/v1/team/' + setup.awayTeam.team_id + '/image'" referrerpolicy="no-referrer" alt="" />
           </div>
         </div>
 
@@ -84,13 +89,30 @@ import { AuthService } from '../../services/auth.service';
           </div>
         }
 
+        @if (!matchEnded && !view) {
+          <div class="loading-container"><div class="spinner"></div>Simulating match...</div>
+        }
+        @if (!matchEnded && view) {
+          <app-match-pitch [view]="view" />
+          <div class="sim-controls">
+            <label class="speed">
+              Match length
+              <select (change)="setLength($any($event.target).value)">
+                @for (l of lengths; track l.secs) { <option [value]="l.secs" [selected]="l.secs === matchLength">{{ l.label }}</option> }
+              </select>
+            </label>
+            <span class="ff-badge" [class.on]="fastForward">&#9193; Fast forward</span>
+            <button class="skip-btn" (click)="skipToEnd()">Skip to Full Time &rarr;</button>
+          </div>
+        }
+
         <div class="live-timeline" #timelineEl>
           @for (event of visibleEvents; track $index) {
             <div class="ev" [class]="'ev-' + event.type">
               <span class="ev-min">{{ event.minute }}'</span>
               <div class="ev-dot"></div>
               <div class="ev-body">
-                <span class="ev-team" [class.home-label]="event.team === result.homeTeam.name" [class.away-label]="event.team !== result.homeTeam.name">{{ event.team }}</span>
+                <span class="ev-team" [class.home-label]="event.team === setup.homeTeam.name" [class.away-label]="event.team !== setup.homeTeam.name">{{ event.team }}</span>
                 <span class="ev-icon">{{ getEventIcon(event.type) }}</span>
                 <span class="ev-player">{{ event.player }}</span>
                 @if (event.description) { <div class="ev-desc">{{ event.description }}</div> }
@@ -102,11 +124,7 @@ import { AuthService } from '../../services/auth.service';
           }
         </div>
 
-        @if (!matchEnded) {
-          <button class="skip-btn" (click)="skipToEnd()">Skip to Full Time &rarr;</button>
-        }
-
-        @if (matchEnded) {
+        @if (matchEnded && result) {
           <div class="post-match">
             @if (result.potm) {
               <div class="potm-card">
@@ -186,7 +204,7 @@ import { AuthService } from '../../services/auth.service';
     :host { display: block; height: 100%; overflow-y: auto; }
     .match-page {
       display: flex; flex-direction: column; gap: 1.25rem;
-      max-width: 900px; margin: 0 auto; padding: 1.5rem 1.5rem 3rem;
+      max-width: 1000px; margin: 0 auto; padding: 1.5rem 1.5rem 3rem;
     }
     .empty-page { justify-content: center; align-items: center; text-align: center; color: var(--text-muted); }
 
@@ -276,7 +294,7 @@ import { AuthService } from '../../services/auth.service';
     }
 
     .live-timeline {
-      flex: 1; overflow-y: auto; min-height: 0;
+      flex: 1; overflow-y: auto; min-height: 0; max-height: 240px;
       margin-top: 0.75rem;
       display: flex; flex-direction: column; gap: 0;
       background: rgba(245,240,225,0.85); border: 1px solid var(--border-color);
@@ -315,8 +333,16 @@ import { AuthService } from '../../services/auth.service';
       to { opacity: 1; transform: translateX(0); }
     }
 
+    .sim-controls { display: flex; align-items: center; justify-content: center; gap: 1rem; }
+    .speed { display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); }
+    .speed select { padding: 0.3rem 1.8rem 0.3rem 0.6rem; font-size: 0.8rem; }
+    .ff-badge {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--accent); opacity: 0; transition: opacity 0.2s ease; min-width: 7.5rem; text-align: center;
+    }
+    .ff-badge.on { opacity: 1; }
     .skip-btn {
-      margin-top: 0.5rem; align-self: center;
+      align-self: center;
       padding: 0.5rem 1.5rem; border-radius: var(--radius-pill);
       background: transparent; border: 1px solid var(--border-color);
       color: var(--text-secondary); font-family: var(--font-heading);
@@ -391,7 +417,9 @@ import { AuthService } from '../../services/auth.service';
   `],
 })
 export class SimulationComponent implements OnInit, OnDestroy {
+  setup: MatchSetup | null = null;
   result: SimulationResult | null = null;
+  view: PitchView | null = null;
   matchMinute = 0;
   showHT = false;
   showFT = false;
@@ -404,106 +432,153 @@ export class SimulationComponent implements OnInit, OnDestroy {
   saving = false;
   saved = false;
   potmImgFailed = false;
+  readonly lengths = [
+    { label: '1 min', secs: 60 },
+    { label: '3 min', secs: 180 },
+    { label: 'Full (15x)', secs: 0 },
+  ];
+  matchLength = 60;
+  fastForward = false;
 
   @ViewChild('timelineEl') timelineEl!: ElementRef;
 
-  private timerInterval: any = null;
-  private paused = false;
-  private goalQueue: MatchEvent[] = [];
-  private pendingHT = false;
+  private match: LiveMatch | null = null;
+  private raf = 0;
+  private lastFrame = 0;
+  private pauses = 0;
+  private cursor = 0;
+  private feedIdx = 0;
+  private htShown = false;
+  private actionMask = new Uint8Array(0);
+  private fastSpeed = ACTION_SPEED;
+  private curSpeed = ACTION_SPEED;
 
   constructor(
     private router: Router,
     public authService: AuthService,
     private historyService: HistoryService
   ) {
-    const nav = this.router.getCurrentNavigation();
-    const state = nav?.extras?.state as any;
-    if (state?.result) this.result = state.result;
+    const state = this.router.getCurrentNavigation()?.extras?.state as { setup?: MatchSetup } | undefined;
+    if (state?.setup) this.setup = state.setup;
   }
 
-  ngOnInit(): void {
-    if (!this.result) return;
-    setTimeout(() => this.startMatch(), 800);
+  async ngOnInit(): Promise<void> {
+    if (!this.setup) return;
+    const m = new LiveMatch(this.setup);
+    await m.run();
+    this.match = m;
+    this.actionMask = m.actionMask();
+    this.plan();
+    this.view = m.viewAt(0);
+    this.raf = requestAnimationFrame((t) => this.frame(t));
   }
 
   ngOnDestroy(): void {
-    if (this.timerInterval) clearInterval(this.timerInterval);
+    cancelAnimationFrame(this.raf);
   }
 
-  private startMatch(): void {
-    this.timerInterval = setInterval(() => this.tick(), 500);
+  setLength(value: string): void {
+    this.matchLength = Number(value);
+    this.plan();
   }
 
-  private tick(): void {
-    if (this.paused) return;
-    this.matchMinute++;
-
-    const events = this.result!.timeline.filter(e => e.minute === this.matchMinute);
-    const goals = events.filter(e => e.type === 'goal');
-    const others = events.filter(e => e.type !== 'goal');
-
-    for (const e of others) this.visibleEvents.push(e);
-
-    if (goals.length > 0) {
-      this.goalQueue.push(...goals);
-      if (this.matchMinute === 45) this.pendingHT = true;
-      this.processGoalQueue();
-    } else if (this.matchMinute === 45) {
-      this.doHalfTime();
-    }
-
-    if (this.matchMinute >= 90) this.doFullTime();
-
-    this.scrollTimeline();
-  }
-
-  private processGoalQueue(): void {
-    if (this.goalQueue.length === 0) {
-      if (this.pendingHT) {
-        this.pendingHT = false;
-        this.doHalfTime();
-      } else {
-        this.paused = false;
-      }
+  // Shots and cards (with their build-up) play at the normal 15x; everything else is
+  // fast-forwarded so the whole match fits the chosen length.
+  private plan(): void {
+    const m = this.match;
+    if (!m || !this.matchLength) {
+      this.fastSpeed = ACTION_SPEED;
       return;
     }
-
-    this.paused = true;
-    const goal = this.goalQueue.shift()!;
-
-    if (goal.team === this.result!.result.homeTeamName) this.homeGoalsShown++;
-    else this.awayGoalsShown++;
-
-    this.visibleEvents.push(goal);
-    this.goalCard = goal;
-    this.goalCardExiting = false;
-    this.scrollTimeline();
-
-    setTimeout(() => {
-      this.goalCardExiting = true;
-      setTimeout(() => {
-        this.goalCard = null;
-        this.goalCardExiting = false;
-        this.processGoalQueue();
-      }, 400);
-    }, 2500);
+    const remaining = this.actionMask.length - Math.floor(this.cursor);
+    let actionTicks = 0;
+    for (let i = Math.floor(this.cursor); i < this.actionMask.length; i++) actionTicks += this.actionMask[i];
+    const actionSecs = (actionTicks * TICK_SECONDS) / ACTION_SPEED;
+    const fastMatchSecs = (remaining - actionTicks) * TICK_SECONDS;
+    const elapsedShare = Math.floor(this.cursor) / this.actionMask.length;
+    const budget = this.matchLength * (1 - elapsedShare);
+    this.fastSpeed = Math.max(ACTION_SPEED, fastMatchSecs / Math.max(budget * 0.35, budget - actionSecs));
   }
 
-  private doHalfTime(): void {
-    this.paused = true;
-    this.showHT = true;
-    setTimeout(() => {
-      this.showHT = false;
-      this.paused = false;
-    }, 2000);
+  private frame(now: number): void {
+    const dt = this.lastFrame ? Math.min(0.1, (now - this.lastFrame) / 1000) : 0;
+    this.lastFrame = now;
+    const m = this.match!;
+
+    if (!this.pauses && Math.floor(this.cursor) < m.lastTick) {
+      const target = this.actionMask[Math.floor(this.cursor)] ? ACTION_SPEED : this.fastSpeed;
+      this.curSpeed += (target - this.curSpeed) * Math.min(1, dt * 8);
+      this.fastForward = this.curSpeed > ACTION_SPEED * 1.5;
+      this.cursor = Math.min(m.lastTick, this.cursor + (dt * this.curSpeed) / TICK_SECONDS);
+      this.reveal(Math.floor(this.cursor));
+    }
+
+    if (!this.result) this.raf = requestAnimationFrame((t) => this.frame(t));
   }
 
-  private doFullTime(): void {
-    if (this.timerInterval) clearInterval(this.timerInterval);
-    this.timerInterval = null;
+  private show(tick: number): void {
+    const m = this.match!;
+    const f = m.frameAt(tick);
+    this.view = m.viewAt(tick);
+    this.matchMinute = Math.min(90, Math.floor(f.t / 60));
+    this.homeGoalsShown = f.home;
+    this.awayGoalsShown = f.away;
+  }
+
+  private reveal(tick: number): void {
+    const m = this.match!;
+    this.show(tick);
+    let added = false;
+    while (this.feedIdx < m.feedTicks.length && m.feedTicks[this.feedIdx] <= tick) {
+      const e = m.feed[this.feedIdx++];
+      this.visibleEvents.push(e);
+      added = true;
+      if (e.type === 'goal') {
+        // The engine resets for kickoff on the goal tick; hold the frame before it (ball in the net).
+        this.cursor = m.feedTicks[this.feedIdx - 1];
+        this.show(this.cursor - 1);
+        this.homeGoalsShown = m.frameAt(this.cursor).home;
+        this.awayGoalsShown = m.frameAt(this.cursor).away;
+        this.showGoal(e);
+        break;
+      }
+    }
+    if (added) this.scrollTimeline();
+    if (!this.htShown && m.halfTimeTick >= 0 && tick >= m.halfTimeTick) {
+      this.htShown = true;
+      this.hold(2000, () => (this.showHT = true), () => (this.showHT = false));
+    }
+    if (tick >= m.lastTick) this.finish(false);
+  }
+
+  private hold(ms: number, start: () => void, end: () => void): void {
+    this.pauses++;
+    start();
+    setTimeout(() => {
+      end();
+      this.pauses--;
+    }, ms);
+  }
+
+  private showGoal(goal: MatchEvent): void {
+    this.hold(2900, () => {
+      this.goalCard = goal;
+      this.goalCardExiting = false;
+      setTimeout(() => (this.goalCardExiting = true), 2500);
+    }, () => {
+      if (this.goalCard === goal) this.goalCard = null;
+      this.goalCardExiting = false;
+    });
+  }
+
+  private finish(instant: boolean): void {
+    if (this.result) return;
+    this.result = this.match!.result();
     this.matchMinute = 90;
-
+    if (instant) {
+      this.matchEnded = true;
+      return;
+    }
     this.showFT = true;
     setTimeout(() => {
       this.showFT = false;
@@ -512,19 +587,16 @@ export class SimulationComponent implements OnInit, OnDestroy {
   }
 
   skipToEnd(): void {
-    if (this.timerInterval) clearInterval(this.timerInterval);
-    this.timerInterval = null;
-    this.paused = false;
+    const m = this.match;
+    if (!m) return;
+    cancelAnimationFrame(this.raf);
+    this.cursor = m.lastTick;
+    this.show(m.lastTick);
     this.goalCard = null;
-    this.goalCardExiting = false;
-    this.goalQueue = [];
     this.showHT = false;
-    this.showFT = false;
-    this.matchMinute = 90;
-    this.visibleEvents = [...this.result!.timeline];
-    this.homeGoalsShown = this.result!.result.homeGoals;
-    this.awayGoalsShown = this.result!.result.awayGoals;
-    this.matchEnded = true;
+    this.visibleEvents = [...m.feed];
+    this.feedIdx = m.feed.length;
+    this.finish(true);
   }
 
   private scrollTimeline(): void {
@@ -534,25 +606,19 @@ export class SimulationComponent implements OnInit, OnDestroy {
     }, 50);
   }
 
-  get homeScorers(): { player: string; minute: number }[] {
-    if (!this.result) return [];
-    return this.result.timeline
-      .filter(e => e.type === 'goal' && e.team === this.result!.result.homeTeamName)
-      .sort((a, b) => a.minute - b.minute);
+  get homeScorers(): MatchEvent[] {
+    return this.visibleEvents.filter(e => e.type === 'goal' && e.team === this.setup?.homeTeam.name);
   }
 
-  get awayScorers(): { player: string; minute: number }[] {
-    if (!this.result) return [];
-    return this.result.timeline
-      .filter(e => e.type === 'goal' && e.team === this.result!.result.awayTeamName)
-      .sort((a, b) => a.minute - b.minute);
+  get awayScorers(): MatchEvent[] {
+    return this.visibleEvents.filter(e => e.type === 'goal' && e.team === this.setup?.awayTeam.name);
   }
 
   getGoalScorerPlayerId(name: string): number {
-    if (!this.result) return 0;
-    const all = [...(this.result.homeTeam.players || []), ...(this.result.awayTeam.players || [])];
-    const p = all.find(pl => pl?.player === name);
-    return p?.player_id || 0;
+    const s = this.setup;
+    if (!s) return 0;
+    const all = [...s.homeTeam.players, ...s.homeTeam.bench, ...s.awayTeam.players, ...s.awayTeam.bench];
+    return all.find(p => p?.player === name)?.player_id || 0;
   }
 
   getPotmInitials(): string {

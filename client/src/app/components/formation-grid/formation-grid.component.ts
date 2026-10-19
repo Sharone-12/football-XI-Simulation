@@ -216,80 +216,81 @@ export class FormationGridComponent {
   }
 
   private getFormationLayout(formation: string): PositionSlot[] {
-    const formations: Record<string, PositionSlot[]> = {
-      '4-3-3': [
-        { label: 'GK', x: 50, y: 92 }, { label: 'LB', x: 15, y: 76 },
-        { label: 'CB', x: 37, y: 80 }, { label: 'CB', x: 63, y: 80 },
-        { label: 'RB', x: 85, y: 76 }, { label: 'CM', x: 25, y: 58 },
-        { label: 'CM', x: 50, y: 55 }, { label: 'CM', x: 75, y: 58 },
-        { label: 'LW', x: 18, y: 30 }, { label: 'ST', x: 50, y: 24 },
-        { label: 'RW', x: 82, y: 30 },
-      ],
-      '4-4-2': [
-        { label: 'GK', x: 50, y: 92 }, { label: 'LB', x: 15, y: 76 },
-        { label: 'CB', x: 37, y: 80 }, { label: 'CB', x: 63, y: 80 },
-        { label: 'RB', x: 85, y: 76 }, { label: 'LM', x: 15, y: 55 },
-        { label: 'CM', x: 37, y: 58 }, { label: 'CM', x: 63, y: 58 },
-        { label: 'RM', x: 85, y: 55 }, { label: 'ST', x: 37, y: 28 },
-        { label: 'ST', x: 63, y: 28 },
-      ],
-      '3-5-2': [
-        { label: 'GK', x: 50, y: 92 }, { label: 'CB', x: 25, y: 78 },
-        { label: 'CB', x: 50, y: 80 }, { label: 'CB', x: 75, y: 78 },
-        { label: 'LM', x: 10, y: 55 }, { label: 'CM', x: 30, y: 58 },
-        { label: 'CM', x: 50, y: 53 }, { label: 'CM', x: 70, y: 58 },
-        { label: 'RM', x: 90, y: 55 }, { label: 'ST', x: 37, y: 26 },
-        { label: 'ST', x: 63, y: 26 },
-      ],
-      '5-3-2': [
-        { label: 'GK', x: 50, y: 92 }, { label: 'LWB', x: 10, y: 70 },
-        { label: 'CB', x: 30, y: 78 }, { label: 'CB', x: 50, y: 80 },
-        { label: 'CB', x: 70, y: 78 }, { label: 'RWB', x: 90, y: 70 },
-        { label: 'CM', x: 25, y: 55 }, { label: 'CM', x: 50, y: 52 },
-        { label: 'CM', x: 75, y: 55 }, { label: 'ST', x: 37, y: 28 },
-        { label: 'ST', x: 63, y: 28 },
-      ],
-      '4-2-3-1': [
-        { label: 'GK', x: 50, y: 92 }, { label: 'LB', x: 15, y: 76 },
-        { label: 'CB', x: 37, y: 80 }, { label: 'CB', x: 63, y: 80 },
-        { label: 'RB', x: 85, y: 76 }, { label: 'CDM', x: 37, y: 62 },
-        { label: 'CDM', x: 63, y: 62 }, { label: 'LAM', x: 20, y: 42 },
-        { label: 'CAM', x: 50, y: 38 }, { label: 'RAM', x: 80, y: 42 },
-        { label: 'ST', x: 50, y: 22 },
-      ],
-      '3-4-3': [
-        { label: 'GK', x: 50, y: 92 }, { label: 'CB', x: 25, y: 78 },
-        { label: 'CB', x: 50, y: 80 }, { label: 'CB', x: 75, y: 78 },
-        { label: 'LM', x: 15, y: 55 }, { label: 'CM', x: 37, y: 58 },
-        { label: 'CM', x: 63, y: 58 }, { label: 'RM', x: 85, y: 55 },
-        { label: 'LW', x: 20, y: 30 }, { label: 'ST', x: 50, y: 24 },
-        { label: 'RW', x: 80, y: 30 },
-      ],
-      '5-4-1': [
-        { label: 'GK', x: 50, y: 92 }, { label: 'LWB', x: 10, y: 70 },
-        { label: 'CB', x: 30, y: 78 }, { label: 'CB', x: 50, y: 80 },
-        { label: 'CB', x: 70, y: 78 }, { label: 'RWB', x: 90, y: 70 },
-        { label: 'LM', x: 15, y: 50 }, { label: 'CM', x: 37, y: 53 },
-        { label: 'CM', x: 63, y: 53 }, { label: 'RM', x: 85, y: 50 },
-        { label: 'ST', x: 50, y: 26 },
-      ],
-      '4-1-4-1': [
-        { label: 'GK', x: 50, y: 92 }, { label: 'LB', x: 15, y: 76 },
-        { label: 'CB', x: 37, y: 80 }, { label: 'CB', x: 63, y: 80 },
-        { label: 'RB', x: 85, y: 76 }, { label: 'CDM', x: 50, y: 64 },
-        { label: 'LM', x: 15, y: 45 }, { label: 'CM', x: 37, y: 48 },
-        { label: 'CM', x: 63, y: 48 }, { label: 'RM', x: 85, y: 45 },
-        { label: 'ST', x: 50, y: 24 },
-      ],
-      '4-5-1': [
-        { label: 'GK', x: 50, y: 92 }, { label: 'LB', x: 15, y: 76 },
-        { label: 'CB', x: 37, y: 80 }, { label: 'CB', x: 63, y: 80 },
-        { label: 'RB', x: 85, y: 76 }, { label: 'LM', x: 12, y: 52 },
-        { label: 'CM', x: 30, y: 55 }, { label: 'CM', x: 50, y: 50 },
-        { label: 'CM', x: 70, y: 55 }, { label: 'RM', x: 88, y: 52 },
-        { label: 'ST', x: 50, y: 26 },
-      ],
-    };
-    return formations[formation] || formations['4-3-3'];
+    return FORMATION_LAYOUTS[formation] || FORMATION_LAYOUTS['4-3-3'];
   }
 }
+
+export const FORMATION_LAYOUTS: Record<string, { label: string; x: number; y: number }[]> = {
+  '4-3-3': [
+    { label: 'GK', x: 50, y: 92 }, { label: 'LB', x: 15, y: 76 },
+    { label: 'CB', x: 37, y: 80 }, { label: 'CB', x: 63, y: 80 },
+    { label: 'RB', x: 85, y: 76 }, { label: 'CM', x: 25, y: 58 },
+    { label: 'CM', x: 50, y: 55 }, { label: 'CM', x: 75, y: 58 },
+    { label: 'LW', x: 18, y: 30 }, { label: 'ST', x: 50, y: 24 },
+    { label: 'RW', x: 82, y: 30 },
+  ],
+  '4-4-2': [
+    { label: 'GK', x: 50, y: 92 }, { label: 'LB', x: 15, y: 76 },
+    { label: 'CB', x: 37, y: 80 }, { label: 'CB', x: 63, y: 80 },
+    { label: 'RB', x: 85, y: 76 }, { label: 'LM', x: 15, y: 55 },
+    { label: 'CM', x: 37, y: 58 }, { label: 'CM', x: 63, y: 58 },
+    { label: 'RM', x: 85, y: 55 }, { label: 'ST', x: 37, y: 28 },
+    { label: 'ST', x: 63, y: 28 },
+  ],
+  '3-5-2': [
+    { label: 'GK', x: 50, y: 92 }, { label: 'CB', x: 25, y: 78 },
+    { label: 'CB', x: 50, y: 80 }, { label: 'CB', x: 75, y: 78 },
+    { label: 'LM', x: 10, y: 55 }, { label: 'CM', x: 30, y: 58 },
+    { label: 'CM', x: 50, y: 53 }, { label: 'CM', x: 70, y: 58 },
+    { label: 'RM', x: 90, y: 55 }, { label: 'ST', x: 37, y: 26 },
+    { label: 'ST', x: 63, y: 26 },
+  ],
+  '5-3-2': [
+    { label: 'GK', x: 50, y: 92 }, { label: 'LWB', x: 10, y: 70 },
+    { label: 'CB', x: 30, y: 78 }, { label: 'CB', x: 50, y: 80 },
+    { label: 'CB', x: 70, y: 78 }, { label: 'RWB', x: 90, y: 70 },
+    { label: 'CM', x: 25, y: 55 }, { label: 'CM', x: 50, y: 52 },
+    { label: 'CM', x: 75, y: 55 }, { label: 'ST', x: 37, y: 28 },
+    { label: 'ST', x: 63, y: 28 },
+  ],
+  '4-2-3-1': [
+    { label: 'GK', x: 50, y: 92 }, { label: 'LB', x: 15, y: 76 },
+    { label: 'CB', x: 37, y: 80 }, { label: 'CB', x: 63, y: 80 },
+    { label: 'RB', x: 85, y: 76 }, { label: 'CDM', x: 37, y: 62 },
+    { label: 'CDM', x: 63, y: 62 }, { label: 'LAM', x: 20, y: 42 },
+    { label: 'CAM', x: 50, y: 38 }, { label: 'RAM', x: 80, y: 42 },
+    { label: 'ST', x: 50, y: 22 },
+  ],
+  '3-4-3': [
+    { label: 'GK', x: 50, y: 92 }, { label: 'CB', x: 25, y: 78 },
+    { label: 'CB', x: 50, y: 80 }, { label: 'CB', x: 75, y: 78 },
+    { label: 'LM', x: 15, y: 55 }, { label: 'CM', x: 37, y: 58 },
+    { label: 'CM', x: 63, y: 58 }, { label: 'RM', x: 85, y: 55 },
+    { label: 'LW', x: 20, y: 30 }, { label: 'ST', x: 50, y: 24 },
+    { label: 'RW', x: 80, y: 30 },
+  ],
+  '5-4-1': [
+    { label: 'GK', x: 50, y: 92 }, { label: 'LWB', x: 10, y: 70 },
+    { label: 'CB', x: 30, y: 78 }, { label: 'CB', x: 50, y: 80 },
+    { label: 'CB', x: 70, y: 78 }, { label: 'RWB', x: 90, y: 70 },
+    { label: 'LM', x: 15, y: 50 }, { label: 'CM', x: 37, y: 53 },
+    { label: 'CM', x: 63, y: 53 }, { label: 'RM', x: 85, y: 50 },
+    { label: 'ST', x: 50, y: 26 },
+  ],
+  '4-1-4-1': [
+    { label: 'GK', x: 50, y: 92 }, { label: 'LB', x: 15, y: 76 },
+    { label: 'CB', x: 37, y: 80 }, { label: 'CB', x: 63, y: 80 },
+    { label: 'RB', x: 85, y: 76 }, { label: 'CDM', x: 50, y: 64 },
+    { label: 'LM', x: 15, y: 45 }, { label: 'CM', x: 37, y: 48 },
+    { label: 'CM', x: 63, y: 48 }, { label: 'RM', x: 85, y: 45 },
+    { label: 'ST', x: 50, y: 24 },
+  ],
+  '4-5-1': [
+    { label: 'GK', x: 50, y: 92 }, { label: 'LB', x: 15, y: 76 },
+    { label: 'CB', x: 37, y: 80 }, { label: 'CB', x: 63, y: 80 },
+    { label: 'RB', x: 85, y: 76 }, { label: 'LM', x: 12, y: 52 },
+    { label: 'CM', x: 30, y: 55 }, { label: 'CM', x: 50, y: 50 },
+    { label: 'CM', x: 70, y: 55 }, { label: 'RM', x: 88, y: 52 },
+    { label: 'ST', x: 50, y: 26 },
+  ],
+};

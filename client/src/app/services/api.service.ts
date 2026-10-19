@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Team } from '../models/team.model';
 import { Player } from '../models/player.model';
-import { SimulationResult, LineupData } from '../models/simulation.model';
+import { LineupData, MatchScript, SetupTeam } from '../models/simulation.model';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -49,18 +49,16 @@ export class ApiService {
     return this.http.get<Player>(`${this.baseUrl}/players/${playerId}`);
   }
 
-  simulate(homeLineup: LineupData, awayLineup: LineupData): Observable<SimulationResult> {
-    return this.http.post<SimulationResult>(`${this.baseUrl}/simulate`, {
-      homeLineup: {
-        formation: homeLineup.formation,
-        players: homeLineup.players.map(p => p.player_id),
-        teamName: homeLineup.name,
-      },
-      awayLineup: {
-        formation: awayLineup.formation,
-        players: awayLineup.players.map(p => p.player_id),
-        teamName: awayLineup.name,
-      },
+  // Returns slot-aligned lineups with engine attributes; the match runs client-side.
+  simulate(homeLineup: LineupData, awayLineup: LineupData): Observable<{ homeTeam: SetupTeam; awayTeam: SetupTeam; script: MatchScript }> {
+    const body = (l: LineupData) => ({
+      formation: l.formation,
+      players: l.players.map(p => p?.player_id ?? null),
+      teamName: l.name,
+    });
+    return this.http.post<{ homeTeam: SetupTeam; awayTeam: SetupTeam; script: MatchScript }>(`${this.baseUrl}/simulate`, {
+      homeLineup: body(homeLineup),
+      awayLineup: body(awayLineup),
     });
   }
 }

@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { Player } from '../../models/player.model';
-import { SelectedPlayer, LineupData } from '../../models/simulation.model';
+import { SelectedPlayer, LineupData, MatchSetup } from '../../models/simulation.model';
 import { FormationGridComponent } from '../../components/formation-grid/formation-grid.component';
 import { PlayerCardComponent } from '../../components/player-card/player-card.component';
 
@@ -277,16 +277,14 @@ export class DreamXiComponent implements OnInit {
   simulate(): void {
     if (!this.canSimulate) return;
     this.simulating = true;
-    const homeLineup: LineupData = {
-      name: this.homeTeamName, formation: this.homeFormation,
-      players: this.homePlayers.filter((p): p is SelectedPlayer => p !== null),
-    };
-    const awayLineup: LineupData = {
-      name: this.awayTeamName, formation: this.awayFormation,
-      players: this.awayPlayers.filter((p): p is SelectedPlayer => p !== null),
-    };
+    const homeLineup: LineupData = { name: this.homeTeamName, formation: this.homeFormation, players: this.homePlayers };
+    const awayLineup: LineupData = { name: this.awayTeamName, formation: this.awayFormation, players: this.awayPlayers };
     this.api.simulate(homeLineup, awayLineup).subscribe({
-      next: (result) => { this.simulating = false; this.router.navigate(['/simulation'], { state: { result } }); },
+      next: (teams) => {
+        const setup: MatchSetup = { ...teams, mode: 'dream' };
+        this.simulating = false;
+        this.router.navigate(['/simulation'], { state: { setup } });
+      },
       error: () => { this.simulating = false; },
     });
   }

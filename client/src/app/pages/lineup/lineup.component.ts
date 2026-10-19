@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { Player } from '../../models/player.model';
 import { Team } from '../../models/team.model';
-import { SelectedPlayer, LineupData } from '../../models/simulation.model';
+import { SelectedPlayer, LineupData, MatchSetup } from '../../models/simulation.model';
 import { FormationGridComponent } from '../../components/formation-grid/formation-grid.component';
 import { PlayerCardComponent } from '../../components/player-card/player-card.component';
 
@@ -315,20 +315,17 @@ export class LineupComponent implements OnInit {
     this.simulating = true;
     const homeLineup: LineupData = {
       name: this.homeTeam.name, team_id: this.homeTeam.team_id,
-      formation: this.homeFormation,
-      players: this.homePlayers.filter((p): p is SelectedPlayer => p !== null),
+      formation: this.homeFormation, players: this.homePlayers,
     };
     const awayLineup: LineupData = {
       name: this.awayTeam.name, team_id: this.awayTeam.team_id,
-      formation: this.awayFormation,
-      players: this.awayPlayers.filter((p): p is SelectedPlayer => p !== null),
+      formation: this.awayFormation, players: this.awayPlayers,
     };
     this.api.simulate(homeLineup, awayLineup).subscribe({
-      next: (result) => {
-        result.homeTeam.players = [...this.homePlayers] as any;
-        result.awayTeam.players = [...this.awayPlayers] as any;
+      next: (teams) => {
+        const setup: MatchSetup = { ...teams, mode: 'club' };
         this.simulating = false;
-        this.zone.run(() => this.router.navigate(['/simulation'], { state: { result } }));
+        this.zone.run(() => this.router.navigate(['/simulation'], { state: { setup } }));
       },
       error: () => { this.simulating = false; },
     });
